@@ -1,0 +1,218 @@
+<!doctype html>
+<html lang="tr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>2026 Dunya Kupasi Ofis Tahmin Ligi</title>
+    <link rel="stylesheet" href="styles.css" />
+    <script src="app.js" defer></script>
+  </head>
+  <body>
+    <div class="page-glow page-glow--top"></div>
+    <div class="page-glow page-glow--bottom"></div>
+
+    <main class="app-shell">
+      <section class="hero-card">
+        <div class="section-intro">
+          <p class="section-kicker">2026 World Cup Predictor</p>
+          <h1>Ofis ici tahmin ligi</h1>
+          <p class="section-copy">
+            Tek link, tek sayfa, tek tahmin. Grup skorlarini girin, eleme
+            kazananlarini secin ve tahmininizi turnuva baslamadan kilitleyin.
+          </p>
+        </div>
+
+        <form id="entry-form" class="entry-form" autocomplete="off">
+          <label class="field-label" for="full-name">
+            Ad soyad
+            <input
+              id="full-name"
+              name="fullName"
+              type="text"
+              maxlength="80"
+              placeholder="Ornek: Meltem Onder"
+            />
+          </label>
+
+          <div class="button-row">
+            <button id="confirm-btn" class="button button--primary" type="submit">
+              Tahmini Onayla
+            </button>
+            <button id="clear-btn" class="button button--ghost" type="button">
+              Temizle
+            </button>
+          </div>
+
+          <div class="status-grid">
+            <article class="status-card">
+              <span>Grup skor girisi</span>
+              <strong id="group-progress">0 / 72</strong>
+            </article>
+            <article class="status-card">
+              <span>Eleme secimi</span>
+              <strong id="knockout-progress">0 / 32</strong>
+            </article>
+            <article class="status-card">
+              <span>Durum</span>
+              <strong id="lock-state">Acik</strong>
+            </article>
+            <article class="status-card">
+              <span>Sampiyon</span>
+              <strong id="champion-preview">Secilmedi</strong>
+            </article>
+          </div>
+
+          <p id="lock-note" class="helper-copy">
+            Tahmin onaylaninca butun inputlar kilitlenir ve ayni tarayicida
+            localStorage ile korunur.
+          </p>
+          <p id="sync-note" class="sync-note">
+            Ortak leaderboard baglantisi hazirlaniyor.
+          </p>
+        </form>
+      </section>
+
+      <section class="section-card">
+        <div class="section-intro">
+          <p class="section-kicker">1</p>
+          <h2>Grup Mac Fiksturu</h2>
+          <p class="section-copy">
+            Skor girildikce puan tablolari ve eleme eslesmeleri otomatik
+            yenilenir. Masaustunde daha sik bir grid, mobilde tek kolon akisi
+            kullanilir.
+          </p>
+        </div>
+        <div id="fixtures-root" class="stack-root"></div>
+      </section>
+
+      <section class="section-card">
+        <div class="section-intro">
+          <p class="section-kicker">2</p>
+          <h2>Grup Sonuclari</h2>
+          <p class="section-copy">
+            Resimdeki gibi daha kompakt, yanyana mini grup kartlari. Ilk iki
+            yesil, en iyi ucuncu acik yesil tonla isaretlenir.
+          </p>
+        </div>
+        <div id="standings-root" class="stack-root"></div>
+      </section>
+
+      <section class="section-card">
+        <div class="section-intro">
+          <p class="section-kicker">3</p>
+          <h2>Bracket</h2>
+          <p class="section-copy">
+            Dropdown secimleri direkt bracket panosu uzerinde ilerler. Final ve
+            ucunculuk merkezi ortada toplanir, ucuncu takim slotlari placeholder
+            olarak kalir.
+          </p>
+        </div>
+        <div id="bracket-root" class="stack-root"></div>
+      </section>
+
+      <section class="section-card">
+        <div class="section-intro">
+          <p class="section-kicker">4</p>
+          <h2>Leaderboard</h2>
+          <p class="section-copy">
+            Herkesin kaydi Supabase uzerinden tek tabloda toplanir. Isme
+            tiklayinca kayitli tahmin acilir, organizator isterse duplicate
+            kayitlari silebilir.
+          </p>
+        </div>
+        <div id="leaderboard-root"></div>
+      </section>
+
+      <section id="admin-section" class="section-card hidden">
+        <div class="section-intro">
+          <p class="section-kicker">Admin</p>
+          <h2>Admin Skor Girisi</h2>
+          <p class="section-copy">
+            Bu alan sadece organizator icindir. Giris yapinca resmi mac
+            sonuclarini kaydedebilir ve leaderboard'u ortak olarak
+            guncelleyebilirsiniz.
+          </p>
+        </div>
+        <div id="admin-root" class="stack-root"></div>
+      </section>
+
+      <section class="section-card">
+        <div class="section-intro">
+          <p class="section-kicker">5</p>
+          <h2>Kurallar ve Puanlama</h2>
+          <p class="section-copy">
+            Tahmin mantigi, kilit kurali ve puan sistemi burada ozetlenir.
+          </p>
+        </div>
+
+        <div class="rules-grid">
+          <article class="rules-card">
+            <h3>Nasil Calisir?</h3>
+            <ul class="rules-list">
+              <li>Her katilimci sadece 1 kez tahmin girer.</li>
+              <li>Ad soyad ve tum tahminler tamamlaninca Tahmini Onayla ile kayit kilitlenir.</li>
+              <li>Onaydan sonra inputlar kapanir ve tahmin Supabase'e ortak olarak kaydedilir.</li>
+              <li>Grup maclari skorla girilir, eleme turlarinda kazanan dropdown ile secilir.</li>
+              <li>Play-off takimlari netlesince placeholder alanlar gercek takim isimleriyle guncellenir.</li>
+            </ul>
+          </article>
+
+          <article class="rules-card">
+            <h3>Grup Asamasi Puanlama</h3>
+            <ul class="rules-list">
+              <li>Mac sonucunu dogru bilen: 2 puan</li>
+              <li>Tam skoru dogru bilen: ekstra 2 puan</li>
+              <li>Bir grup macindan maksimum: 4 puan</li>
+              <li>Grup tablolari skorlar degistikce otomatik hesaplanir.</li>
+              <li>En iyi 3.'ler sistemde arka planda puan &gt; averaj &gt; atilan gol ile belirlenir.</li>
+            </ul>
+          </article>
+
+          <article class="rules-card">
+            <h3>Eleme Asamasi Puanlama</h3>
+            <ul class="rules-list">
+              <li>Round of 32 dogru kazanan: 2 puan</li>
+              <li>Round of 16 dogru kazanan: 3 puan</li>
+              <li>Quarter-final dogru kazanan: 4 puan</li>
+              <li>Semi-final dogru kazanan: 5 puan</li>
+              <li>Dogru finalist tahmini: takim basina 6 puan</li>
+              <li>Dogru sampiyon tahmini: 10 puan</li>
+              <li>Dogru 3.'luk maci tahmini: 4 puan</li>
+            </ul>
+          </article>
+
+          <article class="rules-card">
+            <h3>Leaderboard</h3>
+            <ul class="rules-list">
+              <li>Toplam puana gore en yuksekten en dusuge siralanir.</li>
+              <li>Listede toplam puan, dogru sonuc, tam skor ve eleme puani gorunur.</li>
+              <li>Bir isme tiklayinca o kisinin kayitli tahmini acilir.</li>
+              <li>Organizator resmi mac skorlarini girdiginde puanlar bu kurallara gore hesaplanir.</li>
+              <li>Temizle butonu sadece bu cihazdaki taslagi sifirlar, ortak kaydi silmez.</li>
+            </ul>
+          </article>
+        </div>
+      </section>
+    </main>
+
+    <div id="preview-overlay" class="preview-overlay hidden" role="dialog" aria-modal="true">
+      <div class="preview-panel">
+        <div class="preview-panel__head">
+          <div>
+            <p class="section-kicker">Kayitli Tahmin</p>
+            <h3 id="preview-title">Tahmin detayi</h3>
+            <p id="preview-meta" class="helper-copy"></p>
+          </div>
+          <button
+            type="button"
+            class="button button--ghost button--small"
+            data-close-preview="true"
+          >
+            Kapat
+          </button>
+        </div>
+        <div id="preview-body" class="preview-body"></div>
+      </div>
+    </div>
+  </body>
+</html>
