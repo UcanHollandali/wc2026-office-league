@@ -855,7 +855,6 @@ function renderStandings(model) {
             <div class="mini-group-card__head">
               <div>
                 <p class="section-kicker">Group ${groupKey}</p>
-                <h3>${escapeHtml(COPY.standingsGroupTitle(groupKey))}</h3>
               </div>
             </div>
             <div class="mini-group-card__body">
@@ -1291,7 +1290,6 @@ function renderFixtureGroupCard(group, scoreLookup, options = {}) {
       <div class="group-card__head">
         <div>
           <p class="section-kicker">Group ${group.groupKey}</p>
-          <h3>${escapeHtml(COPY.standingsGroupTitle(group.groupKey))}</h3>
         </div>
         <p class="group-card__teams">${escapeHtml(group.teams.join(" | "))}</p>
       </div>
@@ -1369,7 +1367,6 @@ function openPreview(entry) {
     return `
       <article class="preview-group">
         <p class="section-kicker">Group ${group.groupKey}</p>
-        <h4>${escapeHtml(COPY.standingsGroupTitle(group.groupKey))}</h4>
         <div class="preview-fixtures">${rows}</div>
       </article>
     `;
