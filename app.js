@@ -188,6 +188,19 @@ const ROUND_POINTS = {
   sf: 5,
 };
 
+const BONUS_POINTS = {
+  finalist: 6,
+  champion: 10,
+  thirdPlace: 4,
+};
+
+const SOURCE_PATTERNS = {
+  groupRank: /^[12][A-L]$/,
+  bestThird: /^3[A-L]+$/,
+  winner: /^W\d+$/,
+  loser: /^L\d+$/,
+};
+
 const GROUP_ORDER = Object.keys(GROUPS);
 const GROUP_FIXTURE_DEFS = GROUP_ORDER.map((groupKey) => ({
   groupKey,
@@ -854,10 +867,7 @@ function getBracketSlotLabel(participant, source) {
     return "";
   }
 
-  if (
-    participant === source &&
-    (/^[12][A-L]$/.test(source) || /^3[A-L]+$/.test(source) || /^W\d+$/.test(source) || /^L\d+$/.test(source))
-  ) {
+  if (participant === source && isBracketPlaceholderSource(source)) {
     return "";
   }
 
@@ -1324,83 +1334,99 @@ function getLeaderboardRows() {
 
 function calculateEntryScore(entry, officialModel) {
   const predictedModel = computeBracketModel(entry.groupScores, entry.knockoutWinners);
+  const groupScore = calculateGroupStageScore(entry.groupScores, officialModel.groupScores);
+  const eliminationPoints =
+    calculateKnockoutRoundPoints(predictedModel, officialModel) +
+    calculateKnockoutBonusPoints(predictedModel, officialModel);
 
+  return {
+    groupPoints: groupScore.groupPoints,
+    eliminationPoints,
+    totalPoints: groupScore.groupPoints + eliminationPoints,
+    correctResults: groupScore.correctResults,
+    exactScores: groupScore.exactScores,
+  };
+}
+
+function calculateGroupStageScore(predictedScores, officialScores) {
   let groupPoints = 0;
   let correctResults = 0;
   let exactScores = 0;
-  let eliminationPoints = 0;
 
   ALL_GROUP_MATCHES.forEach((match) => {
-    const predicted = entry.groupScores[match.id];
-    const official = officialModel.groupScores[match.id];
+    const predicted = predictedScores[match.id];
+    const official = officialScores[match.id];
 
     if (!isScoreComplete(predicted) || !isScoreComplete(official)) {
       return;
     }
 
-    const predictedHome = Number(predicted.home);
-    const predictedAway = Number(predicted.away);
-    const officialHome = Number(official.home);
-    const officialAway = Number(official.away);
-    const predictedOutcome = Math.sign(predictedHome - predictedAway);
-    const officialOutcome = Math.sign(officialHome - officialAway);
+    const predictedPair = getNumericScorePair(predicted);
+    const officialPair = getNumericScorePair(official);
 
-    if (predictedOutcome === officialOutcome) {
+    if (getMatchOutcome(predictedPair) === getMatchOutcome(officialPair)) {
       groupPoints += 2;
       correctResults += 1;
     }
 
-    if (predictedHome === officialHome && predictedAway === officialAway) {
+    if (
+      predictedPair.home === officialPair.home &&
+      predictedPair.away === officialPair.away
+    ) {
       groupPoints += 2;
       exactScores += 1;
     }
   });
 
+  return {
+    groupPoints,
+    correctResults,
+    exactScores,
+  };
+}
+
+function calculateKnockoutRoundPoints(predictedModel, officialModel) {
+  let total = 0;
+
   KNOCKOUT_MATCHES.forEach((match) => {
+    const roundPoints = ROUND_POINTS[match.stage];
     const predictedWinner = predictedModel.byId[match.id].winner;
     const officialWinner = officialModel.byId[match.id].winner;
 
-    if (!predictedWinner || !officialWinner) {
+    if (!roundPoints || !predictedWinner || !officialWinner) {
       return;
     }
 
-    if (ROUND_POINTS[match.stage] && predictedWinner === officialWinner) {
-      eliminationPoints += ROUND_POINTS[match.stage];
+    if (predictedWinner === officialWinner) {
+      total += roundPoints;
     }
   });
 
-  const predictedFinalists = (predictedModel.byId[104]?.participants || []).filter(Boolean);
-  const officialFinalists = (officialModel.byId[104]?.participants || []).filter(Boolean);
+  return total;
+}
+
+function calculateKnockoutBonusPoints(predictedModel, officialModel) {
+  let total = 0;
+  const predictedFinalists = getFinalists(predictedModel);
+  const officialFinalists = getFinalists(officialModel);
 
   if (officialFinalists.length === 2) {
     officialFinalists.forEach((team) => {
       if (predictedFinalists.includes(team)) {
-        eliminationPoints += 6;
+        total += BONUS_POINTS.finalist;
       }
     });
   }
 
-  if (
-    predictedModel.byId[104]?.winner &&
-    predictedModel.byId[104]?.winner === officialModel.byId[104]?.winner
-  ) {
-    eliminationPoints += 10;
+  if (predictedModel.byId[104]?.winner === officialModel.byId[104]?.winner) {
+    total += predictedModel.byId[104]?.winner ? BONUS_POINTS.champion : 0;
   }
 
-  if (
-    predictedModel.byId[103]?.winner &&
-    predictedModel.byId[103]?.winner === officialModel.byId[103]?.winner
-  ) {
-    eliminationPoints += 4;
+  if (predictedModel.byId[103]?.winner === officialModel.byId[103]?.winner) {
+    total += predictedModel.byId[103]?.winner ? BONUS_POINTS.thirdPlace : 0;
   }
 
-  return {
-    groupPoints,
-    eliminationPoints,
-    totalPoints: groupPoints + eliminationPoints,
-    correctResults,
-    exactScores,
-  };
+  return total;
 }
 
 function getOfficialModel() {
@@ -1495,22 +1521,22 @@ function computeBracketModel(groupScores, knockoutWinners) {
 }
 
 function resolveKnockoutSource(source, standings, resolvedMatches) {
-  if (/^[12][A-L]$/.test(source)) {
+  if (isGroupRankSource(source)) {
     const rankIndex = Number(source.charAt(0)) - 1;
     const groupKey = source.slice(1);
     return standings[groupKey]?.[rankIndex]?.team || source;
   }
 
-  if (/^3[A-L]+$/.test(source)) {
+  if (isBestThirdSource(source)) {
     return source;
   }
 
-  if (/^W\d+$/.test(source)) {
+  if (isWinnerSource(source)) {
     const matchId = Number(source.slice(1));
     return resolvedMatches[matchId]?.winner || "";
   }
 
-  if (/^L\d+$/.test(source)) {
+  if (isLoserSource(source)) {
     const matchId = Number(source.slice(1));
     return resolvedMatches[matchId]?.loser || "";
   }
@@ -2207,6 +2233,46 @@ function formatDateTime(value) {
     hour: "2-digit",
     minute: "2-digit",
   }).format(date);
+}
+
+function getNumericScorePair(score) {
+  return {
+    home: Number(score.home),
+    away: Number(score.away),
+  };
+}
+
+function getMatchOutcome(score) {
+  return Math.sign(score.home - score.away);
+}
+
+function getFinalists(model) {
+  return (model.byId[104]?.participants || []).filter(Boolean);
+}
+
+function isGroupRankSource(source) {
+  return SOURCE_PATTERNS.groupRank.test(source);
+}
+
+function isBestThirdSource(source) {
+  return SOURCE_PATTERNS.bestThird.test(source);
+}
+
+function isWinnerSource(source) {
+  return SOURCE_PATTERNS.winner.test(source);
+}
+
+function isLoserSource(source) {
+  return SOURCE_PATTERNS.loser.test(source);
+}
+
+function isBracketPlaceholderSource(source) {
+  return (
+    isGroupRankSource(source) ||
+    isBestThirdSource(source) ||
+    isWinnerSource(source) ||
+    isLoserSource(source)
+  );
 }
 
 function createEntryId() {
