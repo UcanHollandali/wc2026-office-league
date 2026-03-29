@@ -228,6 +228,7 @@ let syncState = {
   error: "",
   lastSyncedAt: "",
 };
+let remoteRefreshPromise = null;
 let adminState = {
   enabled: ADMIN_MODE,
   session: loadAdminSession(),
@@ -1686,36 +1687,59 @@ function getCompletionState(entry) {
 async function refreshRemoteData(options = {}) {
   const focusState = options.silent ? captureFocus() : null;
 
+  if (remoteRefreshPromise) {
+    if (!options.silent && !syncState.loading) {
+      syncState.loading = true;
+      renderAll();
+    }
+
+    await remoteRefreshPromise;
+
+    if (focusState) {
+      restoreFocus(focusState);
+    }
+
+    return;
+  }
+
   if (!options.silent) {
     syncState.loading = true;
     renderAll();
   }
 
-  try {
-    const [remoteSubmissions, remoteOfficialResults] = await Promise.all([
-      fetchPredictions(),
-      fetchOfficialResults(),
-    ]);
+  remoteRefreshPromise = (async () => {
+    try {
+      const [remoteSubmissions, remoteOfficialResults] = await Promise.all([
+        fetchPredictions(),
+        fetchOfficialResults(),
+      ]);
 
-    submissions = ensureLocalSubmissionPresence(remoteSubmissions);
-    officialResults = createOfficialResultsState(remoteOfficialResults);
+      applyRemoteSnapshot(remoteSubmissions, remoteOfficialResults);
+      syncState.ready = true;
+      syncState.error = "";
+      syncState.lastSyncedAt = new Date().toISOString();
+    } catch (error) {
+      syncState.error = error.message || "Supabase baglantisi kurulamadigi icin ortak tablo guncellenemedi.";
+    } finally {
+      syncState.loading = false;
+      renderAll();
+      remoteRefreshPromise = null;
 
-    if (!adminState.officialDirty) {
-      officialDraft = createOfficialResultsState(officialResults);
+      if (focusState) {
+        restoreFocus(focusState);
+      }
     }
+  })();
 
-    syncState.ready = true;
-    syncState.error = "";
-    syncState.lastSyncedAt = new Date().toISOString();
-  } catch (error) {
-    syncState.error = error.message || "Supabase baglantisi kurulamadigi icin ortak tablo guncellenemedi.";
-  } finally {
-    syncState.loading = false;
-    renderAll();
+  await remoteRefreshPromise;
+}
 
-    if (focusState) {
-      restoreFocus(focusState);
-    }
+function applyRemoteSnapshot(remoteSubmissions, remoteOfficialResults) {
+  submissions = ensureLocalSubmissionPresence(remoteSubmissions);
+  officialResults = createOfficialResultsState(remoteOfficialResults);
+
+  if (!adminState.officialDirty) {
+    officialDraft = createOfficialResultsState(officialResults);
   }
 }
 
