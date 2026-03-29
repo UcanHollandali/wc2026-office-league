@@ -18,8 +18,6 @@
   --radius-lg: 18px;
   --radius-md: 14px;
   --radius-sm: 10px;
-  --bracket-connector-color: rgba(33, 73, 62, 0.34);
-  --bracket-connector-size: 18px;
   --bracket-card-min-height: 96px;
   --bracket-pair-gap: 8px;
   --bracket-stack-gap: 18px;
@@ -599,66 +597,6 @@ tbody tr:last-child td {
 .bracket-match > * {
   position: relative;
   z-index: 1;
-}
-
-.bracket-side--left .bracket-column:not(:last-child) .bracket-match::after {
-  content: "";
-  position: absolute;
-  top: calc(50% - 1px);
-  right: calc(-1 * var(--bracket-connector-size));
-  width: var(--bracket-connector-size);
-  z-index: -1;
-  border-top: 2px solid var(--bracket-connector-color);
-}
-
-.bracket-side--right .bracket-column:not(:first-child) .bracket-match::before {
-  content: "";
-  position: absolute;
-  top: calc(50% - 1px);
-  left: calc(-1 * var(--bracket-connector-size));
-  width: var(--bracket-connector-size);
-  z-index: -1;
-  border-top: 2px solid var(--bracket-connector-color);
-}
-
-.bracket-side--left .bracket-column--sf .bracket-match::after {
-  content: "";
-  position: absolute;
-  top: calc(50% - 1px);
-  right: calc(-1 * var(--bracket-connector-size));
-  width: var(--bracket-connector-size);
-  z-index: -1;
-  border-top: 2px solid var(--bracket-connector-color);
-}
-
-.bracket-side--right .bracket-column--sf .bracket-match::before {
-  content: "";
-  position: absolute;
-  top: calc(50% - 1px);
-  left: calc(-1 * var(--bracket-connector-size));
-  width: var(--bracket-connector-size);
-  z-index: -1;
-  border-top: 2px solid var(--bracket-connector-color);
-}
-
-.bracket-side--left .bracket-group--size-2::after {
-  content: "";
-  position: absolute;
-  top: calc(var(--bracket-lane-size) / 2);
-  bottom: calc(var(--bracket-lane-size) / 2);
-  right: calc(-1 * var(--bracket-connector-size));
-  z-index: -1;
-  border-right: 2px solid var(--bracket-connector-color);
-}
-
-.bracket-side--right .bracket-group--size-2::before {
-  content: "";
-  position: absolute;
-  top: calc(var(--bracket-lane-size) / 2);
-  bottom: calc(var(--bracket-lane-size) / 2);
-  left: calc(-1 * var(--bracket-connector-size));
-  z-index: -1;
-  border-left: 2px solid var(--bracket-connector-color);
 }
 
 .bracket-slot-stack {
