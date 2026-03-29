@@ -202,6 +202,7 @@ const SOURCE_PATTERNS = {
 };
 
 const OFFICIAL_BEST_THIRD_COLUMNS = ["1A", "1B", "1D", "1E", "1G", "1I", "1K", "1L"];
+const EXPECTED_OFFICIAL_BEST_THIRD_OPTIONS = 495;
 const BEST_THIRD_TARGET_BY_SOURCE = {
   "3CEFHI": "1A",
   "3EFGIJ": "1B",
@@ -212,6 +213,7 @@ const BEST_THIRD_TARGET_BY_SOURCE = {
   "3DEIJL": "1K",
   "3EHIJK": "1L",
 };
+const BEST_THIRD_TARGET_ENTRIES = Object.entries(BEST_THIRD_TARGET_BY_SOURCE);
 const OFFICIAL_BEST_THIRD_LOOKUP = parseOfficialBestThirdTable(
   window.WC2026_OFFICIAL_BEST_THIRD_ROWS || ""
 );
@@ -1674,13 +1676,13 @@ function getQualificationSummary(standings) {
 }
 
 function resolveBestThirdAssignments(bestThirds) {
-  const qualifiedGroups = unique(bestThirds.map((team) => team.group)).sort();
+  const qualifiedGroups = getBestThirdComboKey(bestThirds);
 
-  if (qualifiedGroups.length !== 8) {
+  if (!qualifiedGroups) {
     return {};
   }
 
-  const officialOption = OFFICIAL_BEST_THIRD_LOOKUP[qualifiedGroups.join("")];
+  const officialOption = OFFICIAL_BEST_THIRD_LOOKUP[qualifiedGroups];
 
   if (!officialOption) {
     return {};
@@ -1690,7 +1692,7 @@ function resolveBestThirdAssignments(bestThirds) {
     bestThirds.map((team) => [`3${team.group}`, team])
   );
 
-  return Object.entries(BEST_THIRD_TARGET_BY_SOURCE).reduce((assignments, [source, target]) => {
+  return BEST_THIRD_TARGET_ENTRIES.reduce((assignments, [source, target]) => {
     const teamSlot = officialOption[target];
     const team = teamBySlot[teamSlot];
 
@@ -1702,12 +1704,17 @@ function resolveBestThirdAssignments(bestThirds) {
   }, {});
 }
 
+function getBestThirdComboKey(bestThirds) {
+  const qualifiedGroups = unique(bestThirds.map((team) => team.group)).sort();
+  return qualifiedGroups.length === 8 ? qualifiedGroups.join("") : "";
+}
+
 function parseOfficialBestThirdTable(raw) {
   if (!raw.trim()) {
     return {};
   }
 
-  return raw
+  const lookup = raw
     .trim()
     .split("\n")
     .reduce((lookup, line) => {
@@ -1721,6 +1728,8 @@ function parseOfficialBestThirdTable(raw) {
 
       return lookup;
     }, {});
+
+  return Object.keys(lookup).length === EXPECTED_OFFICIAL_BEST_THIRD_OPTIONS ? lookup : {};
 }
 
 function compareStandingRows(left, right) {
