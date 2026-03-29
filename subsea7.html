@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>2026 World Cup Prediction League | Subsea 7 Edition</title>
+    <link rel="stylesheet" href="styles.css" />
+    <script src="best-third-table.js" defer></script>
+    <script src="subsea7-edition.js" defer></script>
+    <script src="app.js" defer></script>
+  </head>
+  <body>
+    <div class="page-glow page-glow--top"></div>
+    <div class="page-glow page-glow--bottom"></div>
+
+    <main class="app-shell">
+      <section class="hero-card">
+        <div class="section-intro">
+          <p class="section-kicker">Subsea 7 Edition</p>
+          <h1>2026 World Cup prediction league</h1>
+          <p class="section-copy">
+            Submit your group-stage score picks and knockout winners before the tournament starts.
+            As official results are entered, the leaderboard updates automatically so everyone can
+            track who is getting closest.
+          </p>
+        </div>
+
+        <div class="hero-rules">
+          <article class="hero-rule-card">
+            <h2>Game Rules</h2>
+            <ul class="hero-rule-list">
+              <li>Each player submits a single prediction entry before the tournament begins.</li>
+              <li>Enter exact scores for the group matches and pick winners for the knockout rounds.</li>
+              <li>Once confirmed, the prediction is locked for the entire tournament.</li>
+            </ul>
+          </article>
+
+          <article class="hero-rule-card">
+            <h2>Group Stage</h2>
+            <ul class="hero-rule-list">
+              <li>Correct result: 2 points. Exact score: extra 2 points.</li>
+              <li>The maximum available from one group-stage match is 4 points.</li>
+              <li>Best third-placed teams are ranked by points, goal difference and goals scored.</li>
+            </ul>
+          </article>
+
+          <article class="hero-rule-card">
+            <h2>Knockout Scoring</h2>
+            <ul class="hero-rule-list">
+              <li>Round of 32: 2 points, Round of 16: 3, Quarter-finals: 4, Semi-finals: 5.</li>
+              <li>Correct finalists earn 6 points each, the correct champion earns 10 points.</li>
+              <li>The correct third-place pick earns 4 points, and the leaderboard updates as results come in.</li>
+            </ul>
+          </article>
+        </div>
+
+        <form id="entry-form" class="entry-form" autocomplete="off">
+          <label class="field-label" for="full-name">
+            Full name
+            <input
+              id="full-name"
+              name="fullName"
+              type="text"
+              maxlength="80"
+              placeholder="Example: Alex Taylor"
+            />
+          </label>
+
+          <div class="button-row">
+            <button id="confirm-btn" class="button button--primary" type="submit">
+              Confirm Prediction
+            </button>
+            <button id="clear-btn" class="button button--ghost" type="button">
+              Reset
+            </button>
+          </div>
+
+          <div class="status-grid">
+            <article class="status-card">
+              <span>Group score entry</span>
+              <strong id="group-progress">0 / 72</strong>
+            </article>
+            <article class="status-card">
+              <span>Knockout picks</span>
+              <strong id="knockout-progress">0 / 32</strong>
+            </article>
+            <article class="status-card">
+              <span>Status</span>
+              <strong id="lock-state">Open</strong>
+            </article>
+            <article class="status-card">
+              <span>Champion</span>
+              <strong id="champion-preview">Not selected</strong>
+            </article>
+          </div>
+
+          <p id="lock-note" class="helper-copy">
+            Once you complete and confirm your picks, your entry will be locked.
+          </p>
+          <p id="sync-note" class="sync-note">
+            Preparing the live leaderboard.
+          </p>
+        </form>
+      </section>
+
+      <section class="section-card">
+        <div class="section-intro">
+          <p class="section-kicker">1</p>
+          <h2>Group Match Schedule</h2>
+          <p class="section-copy">
+            As soon as scores are entered, the tables and knockout bracket refresh automatically.
+            Desktop uses a tighter grid, while mobile keeps a single-column flow.
+          </p>
+        </div>
+        <div id="fixtures-root" class="stack-root"></div>
+      </section>
+
+      <section class="section-card">
+        <div class="section-intro">
+          <p class="section-kicker">2</p>
+          <h2>Group Tables</h2>
+          <p class="section-copy">
+            Compact side-by-side group cards. The top two teams are highlighted in green, and
+            the best third-placed teams use a lighter green highlight.
+          </p>
+        </div>
+        <div id="standings-root" class="stack-root"></div>
+      </section>
+
+      <section class="section-card">
+        <div class="section-intro">
+          <p class="section-kicker">3</p>
+          <h2>Bracket</h2>
+          <p class="section-copy">
+            Selections move forward directly on the bracket board. The final and third-place
+            matches stay centred, while best-third slots fill automatically from the official table.
+          </p>
+        </div>
+        <div id="bracket-root" class="stack-root"></div>
+      </section>
+
+      <section class="section-card">
+        <div class="section-intro">
+          <p class="section-kicker">4</p>
+          <h2>Leaderboard</h2>
+          <p class="section-copy">
+            Every entry in this edition is stored in Supabase. Click a name to open the saved
+            prediction. The organiser can also remove duplicate submissions if needed.
+          </p>
+        </div>
+        <div id="leaderboard-root"></div>
+      </section>
+
+      <section id="admin-section" class="section-card hidden">
+        <div class="section-intro">
+          <p class="section-kicker">Admin</p>
+          <h2>Admin Score Entry</h2>
+          <p class="section-copy">
+            This area is for the organiser only. After sign-in, official match results can be saved
+            here and the shared leaderboard will update for everyone in this edition.
+          </p>
+        </div>
+        <div id="admin-root" class="stack-root"></div>
+      </section>
+    </main>
+
+    <div id="preview-overlay" class="preview-overlay hidden" role="dialog" aria-modal="true">
+      <div class="preview-panel">
+        <div class="preview-panel__head">
+          <div>
+            <p class="section-kicker">Saved Prediction</p>
+            <h3 id="preview-title">Prediction details</h3>
+            <p id="preview-meta" class="helper-copy"></p>
+          </div>
+          <button
+            type="button"
+            class="button button--ghost button--small"
+            data-close-preview="true"
+          >
+            Close
+          </button>
+        </div>
+        <div id="preview-body" class="preview-body"></div>
+      </div>
+    </div>
+  </body>
+</html>

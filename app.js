@@ -1,13 +1,119 @@
-const APP_STORAGE_KEY = "wc2026-office-predictor-state";
-const ADMIN_SESSION_KEY = "wc2026-office-predictor-admin-session";
+const EDITION = window.WC2026_EDITION || {};
+const APP_STORAGE_KEY = EDITION.storageKey || "wc2026-office-predictor-state";
+const ADMIN_SESSION_KEY =
+  EDITION.adminSessionKey || "wc2026-office-predictor-admin-session";
 const SYNC_INTERVAL_MS = 20000;
-const LOCALE = "tr-TR";
+const LOCALE = EDITION.locale || "tr-TR";
 
 const SUPABASE_URL = "https://ycgguuxpjkaubzizajwd.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_Bm88PedADVAjWMrnmYW1og_LIuAuomR";
-const SUPABASE_ADMIN_EMAIL = "kemalis@hotmail.com";
-const OFFICIAL_RESULTS_SLUG = "default";
+const SUPABASE_ADMIN_EMAIL = EDITION.adminEmail || "kemalis@hotmail.com";
+const OFFICIAL_RESULTS_SLUG = EDITION.officialResultsSlug || "default";
+const ENTRY_ID_PREFIX = EDITION.entryIdPrefix || "";
 const ADMIN_MODE = new URLSearchParams(window.location.search).get("admin") === "1";
+const COPY = createEditionCopy(EDITION.copy || {});
+
+function createEditionCopy(overrides = {}) {
+  return {
+    statusOpen: "Acik",
+    statusLocked: "Kilitli",
+    championUnselected: "Secilmedi",
+    confirmSubmitting: "Kaydediliyor...",
+    confirmLocked: "Tahmin Kilitlendi",
+    confirmReady: "Tahmini Onayla",
+    alertEnterName: "Lutfen once ad soyad girin.",
+    alertCompleteAll: (groupFilled, knockoutFilled) =>
+      `Onaydan once tum alanlari doldurun.\nGrup maclari: ${groupFilled}/${TOTAL_GROUP_MATCHES}\nEleme secimleri: ${knockoutFilled}/${TOTAL_KNOCKOUT_MATCHES}`,
+    alertSyncNotReady:
+      "Supabase baglantisi hazir degil. Once sayfanin ortak leaderboard ile baglandigini teyit edelim.",
+    alertPredictionSaveFailed: "Tahmin kaydedilemedi.",
+    clearConfirm: (sharedWarning) =>
+      `Bu tarayicidaki aktif tahmini ve local veriyi sifirlamak istiyor musunuz?${sharedWarning}`,
+    clearSharedWarning:
+      "\nNot: Ortak leaderboard kaydi silinmez, sadece bu cihazdaki taslak sifirlanir.",
+    deleteConfirm: (name) => `${name || "Bu kaydi"} leaderboard'dan silmek istiyor musunuz?`,
+    deleteError: "Kayit silinemedi.",
+    adminPasswordRequired: "Lutfen admin sifresini girin.",
+    adminEmailRestricted: "Bu admin paneli sadece belirlenen e-posta ile acilir.",
+    adminLoginFailed: "Admin girisi basarisiz.",
+    adminSaveFailed: "Resmi sonuclar kaydedilemedi.",
+    adminSessionExpired: "Admin oturumu sona erdi. Lutfen yeniden giris yapin.",
+    championSummary: (thirdPlaceWinner) => `Ucunculuk: ${thirdPlaceWinner || "Secilmedi"}`,
+    finalPending: "Final eslesmesi secimlerle dolacak",
+    matchPending: "Eslesme bekleniyor",
+    pickWinner: "Kazanan sec",
+    standingsGroupTitle: (groupKey) => `${groupKey} Grubu`,
+    standingsTeam: "Takim",
+    standingsPlayed: "O",
+    standingsGoals: "Gol",
+    standingsDiff: "Av",
+    standingsPoints: "P",
+    leaderboardDeleting: "Siliniyor...",
+    leaderboardDelete: "Sil",
+    leaderboardHeaders: {
+      rank: "Sira",
+      name: "Ad Soyad",
+      total: "Toplam Puan",
+      correct: "Dogru Sonuc",
+      exact: "Tam Skor",
+      knockout: "Eleme Puani",
+    },
+    leaderboardSyncedAt: (value) => `Son senkron: ${value}`,
+    leaderboardLiveReady: "Canli leaderboard baglantisi acik",
+    leaderboardNoteReady:
+      "Puan tablosu resmi mac sonuclari girildikce otomatik guncellenir. Isme tiklayinca tahmin detayi acilir.",
+    leaderboardNoteError: "Baglanti duzelince puan tablosu yeniden guncellenecek.",
+    leaderboardEmptyLoading: "Canli puan tablosu olusturuluyor...",
+    leaderboardEmptyError: "Baglanti hazir oldugunda ilk kayitlar burada gorunecek.",
+    leaderboardEmptyDefault: "Henuz puan tablosunda kayitli tahmin yok.",
+    lockNoteReady: "Tahmininizi tamamlayip onayladiginizda kaydiniz turnuva boyunca sabit kalir.",
+    lockNoteLockedSynced: (value) =>
+      `Tahmininiz ${value} tarihinde kilitlendi. Artik puan tablosunda yer almaya hazir.`,
+    lockNoteLocked: (value) => `Tahmininiz ${value} tarihinde kilitlendi.`,
+    bracketChampion: "Sampiyon",
+    bracketThirdPlace: "Third Place",
+    previewMeta: (score) =>
+      `Toplam puan: ${score.totalPoints} | Dogru sonuc: ${score.correctResults} | Tam skor: ${score.exactScores} | Eleme puani: ${score.eliminationPoints}`,
+    previewSummary: "Ozet",
+    previewChampionTitle: "Sampiyon Tahmini",
+    previewGroupPredictions: "Grup Mac Tahminleri",
+    previewBracket: "Bracket Secimleri",
+    syncErrorPrefix: "Supabase baglantisi sorunlu: ",
+    syncSubmitting: "Tahmin Supabase'e kaydediliyor...",
+    syncLoading: "Canli puan tablosu baglaniyor...",
+    syncReady: (value) => `Canli puan tablosu guncel. Son yenileme: ${value}.`,
+    syncInitial: "Canli puan tablosu hazir.",
+    adminLoginIntro: (email) =>
+      `Bu panel sadece ${email} icindir. Supabase Auth icinde ayni e-posta ile sifreli bir admin kullanicisi olusturup burada giris yapabilirsiniz.`,
+    adminEmailLabel: "Admin e-posta",
+    adminPasswordLabel: "Admin sifresi",
+    adminPasswordPlaceholder: "Supabase Auth sifresi",
+    adminLoggingIn: "Giris yapiliyor...",
+    adminLogin: "Admin Girisi",
+    adminOfficialSavedAt: (value) => `Kayitli resmi skor seti: ${value}`,
+    adminOfficialEmpty: "Resmi skor seti henuz kaydedilmedi.",
+    adminDirty: "Kaydedilmemis admin degisikligi var.",
+    adminSynced: "Admin editoru kayit ile senkron.",
+    adminActive: "Admin aktif",
+    adminSaving: "Kaydediliyor...",
+    adminSave: "Resmi Sonuclari Kaydet",
+    adminRefresh: "Yeniden Senkronla",
+    adminLogout: "Cikis Yap",
+    adminDeleteInfo:
+      "Leaderboard'daki Sil butonlari bu oturum acikken gorunur. Public linkte admin alani sadece ?admin=1 ile acilir.",
+    adminOfficialGroupTitle: "Resmi Grup Sonuclari",
+    adminOfficialGroupCopy: "Bu skorlar girildikce leaderboard puanlari otomatik hesaplanir.",
+    adminOfficialKnockoutTitle: "Resmi Eleme Sonuclari",
+    adminOfficialKnockoutCopy:
+      "Grup skorlarina ve bir onceki tur secimlerine gore dropdownlar otomatik dolar.",
+    adminFooterCopy: "Kaydettiginiz resmi sonuclar herkeste ayni leaderboard'u gunceller.",
+    previewUnselected: "Secilmedi",
+    unknownValue: "belirsiz",
+    syncConnectionFailed:
+      "Supabase baglantisi kurulamadigi icin ortak tablo guncellenemedi.",
+    ...overrides,
+  };
+}
 
 const GROUPS = {
   A: ["Mexico", "South Africa", "South Korea", "EU Play-off D"],
@@ -279,6 +385,7 @@ const dom = {
   previewBody: document.querySelector("#preview-body"),
 };
 
+applyEditionMetadata();
 hydrateAdminSession();
 renderAll();
 bindEvents();
@@ -383,22 +490,18 @@ async function handleConfirm(event) {
   const completion = getCompletionState(state);
 
   if (!cleanName) {
-    window.alert("Lutfen once ad soyad girin.");
+    window.alert(COPY.alertEnterName);
     dom.fullNameInput.focus();
     return;
   }
 
   if (!completion.complete) {
-    window.alert(
-      `Onaydan once tum alanlari doldurun.\nGrup maclari: ${completion.groupFilled}/${TOTAL_GROUP_MATCHES}\nEleme secimleri: ${completion.knockoutFilled}/${TOTAL_KNOCKOUT_MATCHES}`
-    );
+    window.alert(COPY.alertCompleteAll(completion.groupFilled, completion.knockoutFilled));
     return;
   }
 
   if (!syncState.ready) {
-    window.alert(
-      "Supabase baglantisi hazir degil. Once sayfanin ortak leaderboard ile baglandigini teyit edelim."
-    );
+    window.alert(COPY.alertSyncNotReady);
     return;
   }
 
@@ -430,7 +533,7 @@ async function handleConfirm(event) {
       syncState.error = error.message || "Ortak tablo yenilenemedi.";
     }
   } catch (error) {
-    window.alert(error.message || "Tahmin kaydedilemedi.");
+    window.alert(error.message || COPY.alertPredictionSaveFailed);
   } finally {
     syncState.submitting = false;
     renderAll();
@@ -440,11 +543,9 @@ async function handleConfirm(event) {
 function handleClear() {
   const sharedWarning =
     state.locked && state.remoteSyncedAt
-      ? "\nNot: Ortak leaderboard kaydi silinmez, sadece bu cihazdaki taslak sifirlanir."
+      ? COPY.clearSharedWarning
       : "";
-  const confirmed = window.confirm(
-    `Bu tarayicidaki aktif tahmini ve local veriyi sifirlamak istiyor musunuz?${sharedWarning}`
-  );
+  const confirmed = window.confirm(COPY.clearConfirm(sharedWarning));
 
   if (!confirmed) {
     return;
@@ -487,9 +588,7 @@ async function handleDeleteSubmission(entryId) {
   }
 
   const entry = submissions.find((item) => item.entryId === entryId);
-  const confirmed = window.confirm(
-    `${entry?.fullName || "Bu kaydi"} leaderboard'dan silmek istiyor musunuz?`
-  );
+  const confirmed = window.confirm(COPY.deleteConfirm(entry?.fullName));
 
   if (!confirmed) {
     return;
@@ -510,7 +609,7 @@ async function handleDeleteSubmission(entryId) {
 
     await refreshRemoteData({ silent: true });
   } catch (error) {
-    adminState.error = error.message || "Kayit silinemedi.";
+    adminState.error = error.message || COPY.deleteError;
   } finally {
     adminState.deletingEntryId = "";
     renderAll();
@@ -546,13 +645,13 @@ async function handleAdminSubmit(event) {
   const password = String(formData.get("password") || "");
 
   if (!password) {
-    adminState.error = "Lutfen admin sifresini girin.";
+    adminState.error = COPY.adminPasswordRequired;
     renderAll();
     return;
   }
 
   if (email !== SUPABASE_ADMIN_EMAIL.toLowerCase()) {
-    adminState.error = "Bu admin paneli sadece belirlenen e-posta ile acilir.";
+    adminState.error = COPY.adminEmailRestricted;
     renderAll();
     return;
   }
@@ -567,7 +666,7 @@ async function handleAdminSubmit(event) {
     saveAdminSession(adminState.session);
     await refreshRemoteData({ silent: true });
   } catch (error) {
-    adminState.error = error.message || "Admin girisi basarisiz.";
+    adminState.error = error.message || COPY.adminLoginFailed;
   } finally {
     adminState.loggingIn = false;
     renderAll();
@@ -660,7 +759,7 @@ async function handleAdminSave() {
     adminState.officialDirty = false;
     await refreshRemoteData({ silent: true });
   } catch (error) {
-    adminState.error = error.message || "Resmi sonuclar kaydedilemedi.";
+    adminState.error = error.message || COPY.adminSaveFailed;
   } finally {
     adminState.saving = false;
     renderAll();
@@ -685,8 +784,8 @@ function renderAll(options = {}) {
 
 function renderHeader(model) {
   const completion = getCompletionState(state);
-  const lockedLabel = state.locked ? "Kilitli" : "Acik";
-  const championLabel = model.champion || "Secilmedi";
+  const lockedLabel = state.locked ? COPY.statusLocked : COPY.statusOpen;
+  const championLabel = model.champion || COPY.championUnselected;
 
   if (dom.fullNameInput.value !== state.fullName) {
     dom.fullNameInput.value = state.fullName;
@@ -695,10 +794,10 @@ function renderHeader(model) {
   dom.fullNameInput.disabled = state.locked;
   dom.confirmButton.disabled = state.locked || syncState.submitting;
   dom.confirmButton.textContent = syncState.submitting
-    ? "Kaydediliyor..."
+    ? COPY.confirmSubmitting
     : state.locked
-      ? "Tahmin Kilitlendi"
-      : "Tahmini Onayla";
+      ? COPY.confirmLocked
+      : COPY.confirmReady;
 
   dom.groupProgress.textContent = `${completion.groupFilled} / ${TOTAL_GROUP_MATCHES}`;
   dom.knockoutProgress.textContent = `${completion.knockoutFilled} / ${TOTAL_KNOCKOUT_MATCHES}`;
@@ -707,9 +806,9 @@ function renderHeader(model) {
 
   dom.lockNote.textContent = state.locked
     ? state.remoteSyncedAt
-      ? `Tahmininiz ${formatDateTime(state.lockedAt)} tarihinde kilitlendi. Artik puan tablosunda yer almaya hazir.`
-      : `Tahmininiz ${formatDateTime(state.lockedAt)} tarihinde kilitlendi.`
-    : "Tahmininizi tamamlayip onayladiginizda kaydiniz turnuva boyunca sabit kalir.";
+      ? COPY.lockNoteLockedSynced(formatDateTime(state.lockedAt))
+      : COPY.lockNoteLocked(formatDateTime(state.lockedAt))
+    : COPY.lockNoteReady;
 
   dom.syncNote.classList.toggle("sync-note--warning", Boolean(syncState.error));
   dom.syncNote.textContent = getSyncNote();
@@ -756,16 +855,16 @@ function renderStandings(model) {
             <div class="mini-group-card__head">
               <div>
                 <p class="section-kicker">Group ${groupKey}</p>
-                <h3>${groupKey} Grubu</h3>
+                <h3>${escapeHtml(COPY.standingsGroupTitle(groupKey))}</h3>
               </div>
             </div>
             <div class="mini-group-card__body">
               <div class="mini-group-legend">
-                <span>Takim</span>
-                <span>O</span>
-                <span>Gol</span>
-                <span>Av</span>
-                <span>P</span>
+                <span>${escapeHtml(COPY.standingsTeam)}</span>
+                <span>${escapeHtml(COPY.standingsPlayed)}</span>
+                <span>${escapeHtml(COPY.standingsGoals)}</span>
+                <span>${escapeHtml(COPY.standingsDiff)}</span>
+                <span>${escapeHtml(COPY.standingsPoints)}</span>
               </div>
               ${rowMarkup}
             </div>
@@ -783,7 +882,7 @@ function renderBracket(model) {
   const finalLabel =
     finalTeams.length === 2
       ? `${finalTeams[0]} vs ${finalTeams[1]}`
-      : "Final eslesmesi secimlerle dolacak";
+      : COPY.finalPending;
 
   dom.bracketRoot.innerHTML = `
     <div class="bracket-scroll">
@@ -796,14 +895,14 @@ function renderBracket(model) {
           </div>
 
           <article class="bracket-crown">
-            <span>Sampiyon</span>
-            <strong>${escapeHtml(model.champion || "Secilmedi")}</strong>
+            <span>${escapeHtml(COPY.bracketChampion)}</span>
+            <strong>${escapeHtml(model.champion || COPY.championUnselected)}</strong>
             <p>${escapeHtml(finalLabel)}</p>
-            <small>Ucunculuk: ${escapeHtml(model.thirdPlaceWinner || "Secilmedi")}</small>
+            <small>${escapeHtml(COPY.championSummary(model.thirdPlaceWinner))}</small>
           </article>
 
           <div class="bracket-center__section">
-            <p class="bracket-column__label">Third Place</p>
+            <p class="bracket-column__label">${escapeHtml(COPY.bracketThirdPlace)}</p>
             ${renderBracketBoardMatch(thirdPlaceMatch, "center")}
           </div>
         </div>
@@ -860,7 +959,7 @@ function createBracketGroups(ids) {
 
 function renderBracketBoardMatch(match, side) {
   const selectDisabled = state.locked || match.options.length < 2;
-  const placeholderLabel = match.options.length < 2 ? "Eslesme bekleniyor" : "Kazanan sec";
+  const placeholderLabel = match.options.length < 2 ? COPY.matchPending : COPY.pickWinner;
   const optionsMarkup = renderWinnerSelectOptions(match.options, match.winner, placeholderLabel);
 
   return `
@@ -938,7 +1037,7 @@ function renderLeaderboard() {
                     data-delete-entry="${escapeAttribute(row.entryId)}"
                     ${adminState.deletingEntryId === row.entryId ? "disabled" : ""}
                   >
-                    ${adminState.deletingEntryId === row.entryId ? "Siliniyor..." : "Sil"}
+                    ${adminState.deletingEntryId === row.entryId ? COPY.leaderboardDeleting : COPY.leaderboardDelete}
                   </button>
                 </td>
               `
@@ -956,8 +1055,8 @@ function renderLeaderboard() {
         <p class="helper-copy">
           ${escapeHtml(
             syncState.lastSyncedAt
-              ? `Son senkron: ${formatDateTime(syncState.lastSyncedAt)}`
-              : "Canli leaderboard baglantisi acik"
+              ? COPY.leaderboardSyncedAt(formatDateTime(syncState.lastSyncedAt))
+              : COPY.leaderboardLiveReady
           )}
         </p>
       </div>
@@ -965,12 +1064,12 @@ function renderLeaderboard() {
         <table>
           <thead>
             <tr>
-              <th>Sira</th>
-              <th>Ad Soyad</th>
-              <th>Toplam Puan</th>
-              <th>Dogru Sonuc</th>
-              <th>Tam Skor</th>
-              <th>Eleme Puani</th>
+              <th>${escapeHtml(COPY.leaderboardHeaders.rank)}</th>
+              <th>${escapeHtml(COPY.leaderboardHeaders.name)}</th>
+              <th>${escapeHtml(COPY.leaderboardHeaders.total)}</th>
+              <th>${escapeHtml(COPY.leaderboardHeaders.correct)}</th>
+              <th>${escapeHtml(COPY.leaderboardHeaders.exact)}</th>
+              <th>${escapeHtml(COPY.leaderboardHeaders.knockout)}</th>
               ${isAdmin ? "<th></th>" : ""}
             </tr>
           </thead>
@@ -999,19 +1098,17 @@ function renderAdmin() {
       <article class="leaderboard-card">
         <form class="admin-login" data-admin-login-form="true" autocomplete="off">
           <p class="admin-note">
-            Bu panel sadece <strong>${escapeHtml(SUPABASE_ADMIN_EMAIL)}</strong> icindir.
-            Supabase Auth icinde ayni e-posta ile sifreli bir admin kullanicisi
-            olusturup burada giris yapabilirsiniz.
+            ${escapeHtml(COPY.adminLoginIntro(SUPABASE_ADMIN_EMAIL))}
           </p>
 
           <label class="field-label">
-            Admin e-posta
+            ${escapeHtml(COPY.adminEmailLabel)}
             <input type="text" name="email" value="${escapeAttribute(SUPABASE_ADMIN_EMAIL)}" readonly />
           </label>
 
           <label class="field-label">
-            Admin sifresi
-            <input type="password" name="password" placeholder="Supabase Auth sifresi" />
+            ${escapeHtml(COPY.adminPasswordLabel)}
+            <input type="password" name="password" placeholder="${escapeAttribute(COPY.adminPasswordPlaceholder)}" />
           </label>
 
           ${
@@ -1022,7 +1119,7 @@ function renderAdmin() {
 
           <div class="button-row">
             <button class="button button--primary" type="submit" ${adminState.loggingIn ? "disabled" : ""}>
-              ${adminState.loggingIn ? "Giris yapiliyor..." : "Admin Girisi"}
+              ${adminState.loggingIn ? COPY.adminLoggingIn : COPY.adminLogin}
             </button>
           </div>
         </form>
@@ -1038,20 +1135,20 @@ function renderAdmin() {
       <article class="leaderboard-card">
         <div class="admin-toolbar">
           <div class="admin-toolbar__meta">
-            <span class="admin-badge">Admin aktif</span>
+            <span class="admin-badge">${escapeHtml(COPY.adminActive)}</span>
             <strong>${escapeHtml(session.email)}</strong>
             <p class="helper-copy">
               ${
                 officialResults.updatedAt
-                  ? `Kayitli resmi skor seti: ${formatDateTime(officialResults.updatedAt)}`
-                  : "Resmi skor seti henuz kaydedilmedi."
+                  ? COPY.adminOfficialSavedAt(formatDateTime(officialResults.updatedAt))
+                  : COPY.adminOfficialEmpty
               }
             </p>
             <p class="helper-copy">
               ${
                 adminState.officialDirty
-                  ? "Kaydedilmemis admin degisikligi var."
-                  : "Admin editoru kayit ile senkron."
+                  ? COPY.adminDirty
+                  : COPY.adminSynced
               }
             </p>
             ${
@@ -1063,18 +1160,18 @@ function renderAdmin() {
 
           <div class="button-row">
             <button class="button button--primary" type="button" data-admin-save ${adminState.saving ? "disabled" : ""}>
-              ${adminState.saving ? "Kaydediliyor..." : "Resmi Sonuclari Kaydet"}
+              ${adminState.saving ? COPY.adminSaving : COPY.adminSave}
             </button>
             <button class="button button--ghost" type="button" data-admin-refresh ${syncState.loading ? "disabled" : ""}>
-              Yeniden Senkronla
+              ${escapeHtml(COPY.adminRefresh)}
             </button>
             <button class="button button--danger" type="button" data-admin-logout>
-              Cikis Yap
+              ${escapeHtml(COPY.adminLogout)}
             </button>
           </div>
         </div>
         <p class="admin-note">
-          Leaderboard'daki Sil butonlari bu oturum acikken gorunur. Public linkte admin alani sadece <strong>?admin=1</strong> ile acilir.
+          ${escapeHtml(COPY.adminDeleteInfo)}
         </p>
       </article>
 
@@ -1082,10 +1179,10 @@ function renderAdmin() {
         <div class="group-card__head">
           <div>
             <p class="section-kicker">Admin</p>
-            <h3>Resmi Grup Sonuclari</h3>
+            <h3>${escapeHtml(COPY.adminOfficialGroupTitle)}</h3>
           </div>
           <p class="group-card__teams">
-            Bu skorlar girildikce leaderboard puanlari otomatik hesaplanir.
+            ${escapeHtml(COPY.adminOfficialGroupCopy)}
           </p>
         </div>
         <div class="admin-editor-grid">
@@ -1097,10 +1194,10 @@ function renderAdmin() {
         <div class="group-card__head">
           <div>
             <p class="section-kicker">Admin</p>
-            <h3>Resmi Eleme Sonuclari</h3>
+            <h3>${escapeHtml(COPY.adminOfficialKnockoutTitle)}</h3>
           </div>
           <p class="group-card__teams">
-            Grup skorlarina ve bir onceki tur secimlerine gore dropdownlar otomatik dolar.
+            ${escapeHtml(COPY.adminOfficialKnockoutCopy)}
           </p>
         </div>
         <div class="admin-rounds">
@@ -1111,11 +1208,11 @@ function renderAdmin() {
       <article class="leaderboard-card">
         <div class="admin-footer">
           <p class="admin-note">
-            Kaydettiginiz resmi sonuclar herkeste ayni leaderboard'u gunceller.
+            ${escapeHtml(COPY.adminFooterCopy)}
           </p>
           <div class="button-row">
             <button class="button button--primary" type="button" data-admin-save ${adminState.saving ? "disabled" : ""}>
-              ${adminState.saving ? "Kaydediliyor..." : "Resmi Sonuclari Kaydet"}
+              ${adminState.saving ? COPY.adminSaving : COPY.adminSave}
             </button>
           </div>
         </div>
@@ -1149,7 +1246,7 @@ function renderAdminRoundBlock(round, officialModel) {
 
 function renderAdminMatchCard(match) {
   const selectDisabled = adminState.saving || !match.options.length;
-  const optionMarkup = renderWinnerSelectOptions(match.options, match.winner, "Kazanan sec");
+  const optionMarkup = renderWinnerSelectOptions(match.options, match.winner, COPY.pickWinner);
 
   return `
     <article class="match-card">
@@ -1194,7 +1291,7 @@ function renderFixtureGroupCard(group, scoreLookup, options = {}) {
       <div class="group-card__head">
         <div>
           <p class="section-kicker">Group ${group.groupKey}</p>
-          <h3>${group.groupKey} Grubu</h3>
+          <h3>${escapeHtml(COPY.standingsGroupTitle(group.groupKey))}</h3>
         </div>
         <p class="group-card__teams">${escapeHtml(group.teams.join(" | "))}</p>
       </div>
@@ -1254,7 +1351,7 @@ function openPreview(entry) {
   const score = calculateEntryScore(entry, getOfficialModel());
 
   dom.previewTitle.textContent = entry.fullName;
-  dom.previewMeta.textContent = `Toplam puan: ${score.totalPoints} | Dogru sonuc: ${score.correctResults} | Tam skor: ${score.exactScores} | Eleme puani: ${score.eliminationPoints}`;
+  dom.previewMeta.textContent = COPY.previewMeta(score);
 
   const fixtureMarkup = GROUP_FIXTURE_DEFS.map((group) => {
     const rows = group.matches
@@ -1272,7 +1369,7 @@ function openPreview(entry) {
     return `
       <article class="preview-group">
         <p class="section-kicker">Group ${group.groupKey}</p>
-        <h4>${group.groupKey} Grubu</h4>
+        <h4>${escapeHtml(COPY.standingsGroupTitle(group.groupKey))}</h4>
         <div class="preview-fixtures">${rows}</div>
       </article>
     `;
@@ -1285,7 +1382,7 @@ function openPreview(entry) {
         return `
           <div class="preview-winner-row">
             <span>${escapeHtml(match.title)}</span>
-            <strong>${escapeHtml(match.winner || "Secilmedi")}</strong>
+            <strong>${escapeHtml(match.winner || COPY.previewUnselected)}</strong>
           </div>
         `;
       })
@@ -1303,19 +1400,19 @@ function openPreview(entry) {
   dom.previewBody.innerHTML = `
     <section class="preview-section">
       <article class="preview-round">
-        <p class="section-kicker">Ozet</p>
-        <h4>Sampiyon Tahmini</h4>
-        <p><strong>${escapeHtml(model.champion || "Secilmedi")}</strong></p>
+        <p class="section-kicker">${escapeHtml(COPY.previewSummary)}</p>
+        <h4>${escapeHtml(COPY.previewChampionTitle)}</h4>
+        <p><strong>${escapeHtml(model.champion || COPY.previewUnselected)}</strong></p>
       </article>
     </section>
 
     <section class="preview-section">
-      <h4>Grup Mac Tahminleri</h4>
+      <h4>${escapeHtml(COPY.previewGroupPredictions)}</h4>
       ${fixtureMarkup}
     </section>
 
     <section class="preview-section">
-      <h4>Bracket Secimleri</h4>
+      <h4>${escapeHtml(COPY.previewBracket)}</h4>
       ${knockoutMarkup}
     </section>
   `;
@@ -1795,7 +1892,7 @@ async function refreshRemoteData(options = {}) {
       syncState.error = "";
       syncState.lastSyncedAt = new Date().toISOString();
     } catch (error) {
-      syncState.error = error.message || "Supabase baglantisi kurulamadigi icin ortak tablo guncellenemedi.";
+      syncState.error = error.message || COPY.syncConnectionFailed;
     } finally {
       syncState.loading = false;
       renderAll();
@@ -1820,9 +1917,7 @@ function applyRemoteSnapshot(remoteSubmissions, remoteOfficialResults) {
 }
 
 async function fetchPredictions() {
-  const rows = await supabaseRequest(
-    "/rest/v1/predictions?select=entry_id,full_name,locked_at,group_scores,knockout_winners,created_at&order=created_at.asc"
-  );
+  const rows = await supabaseRequest(buildPredictionsPath());
 
   if (!Array.isArray(rows)) {
     return [];
@@ -2203,7 +2298,7 @@ function getActiveAdminSession() {
 
   if (adminState.session.expiresAt && Date.now() >= adminState.session.expiresAt) {
     adminState.session = null;
-    adminState.error = "Admin oturumu sona erdi. Lutfen yeniden giris yapin.";
+    adminState.error = COPY.adminSessionExpired;
     clearAdminSession();
     return null;
   }
@@ -2283,53 +2378,53 @@ function restoreFocus(focusState) {
 
 function getSyncNote() {
   if (syncState.error) {
-    return `Supabase baglantisi sorunlu: ${syncState.error}`;
+    return `${COPY.syncErrorPrefix}${syncState.error}`;
   }
 
   if (syncState.submitting) {
-    return "Tahmin Supabase'e kaydediliyor...";
+    return COPY.syncSubmitting;
   }
 
   if (syncState.loading && !syncState.ready) {
-    return "Canli puan tablosu baglaniyor...";
+    return COPY.syncLoading;
   }
 
   if (syncState.lastSyncedAt) {
-    return `Canli puan tablosu guncel. Son yenileme: ${formatDateTime(syncState.lastSyncedAt)}.`;
+    return COPY.syncReady(formatDateTime(syncState.lastSyncedAt));
   }
 
-  return "Canli puan tablosu hazir.";
+  return COPY.syncInitial;
 }
 
 function getLeaderboardNote() {
   if (syncState.error) {
-    return "Baglanti duzelince puan tablosu yeniden guncellenecek.";
+    return COPY.leaderboardNoteError;
   }
 
-  return "Puan tablosu resmi mac sonuclari girildikce otomatik guncellenir. Isme tiklayinca tahmin detayi acilir.";
+  return COPY.leaderboardNoteReady;
 }
 
 function getEmptyLeaderboardCopy() {
   if (syncState.loading && !syncState.ready) {
-    return "Canli puan tablosu olusturuluyor...";
+    return COPY.leaderboardEmptyLoading;
   }
 
   if (syncState.error) {
-    return "Baglanti hazir oldugunda ilk kayitlar burada gorunecek.";
+    return COPY.leaderboardEmptyError;
   }
 
-  return "Henuz puan tablosunda kayitli tahmin yok.";
+  return COPY.leaderboardEmptyDefault;
 }
 
 function formatDateTime(value) {
   if (!value) {
-    return "belirsiz";
+    return COPY.unknownValue;
   }
 
   const date = new Date(value);
 
   if (Number.isNaN(date.getTime())) {
-    return "belirsiz";
+    return COPY.unknownValue;
   }
 
   return new Intl.DateTimeFormat(LOCALE, {
@@ -2373,11 +2468,30 @@ function isLoserSource(source) {
 }
 
 function createEntryId() {
-  if (window.crypto && typeof window.crypto.randomUUID === "function") {
-    return window.crypto.randomUUID();
+  const generatedId =
+    window.crypto && typeof window.crypto.randomUUID === "function"
+      ? window.crypto.randomUUID()
+      : `entry-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+
+  return ENTRY_ID_PREFIX ? `${ENTRY_ID_PREFIX}${generatedId}` : generatedId;
+}
+
+function buildPredictionsPath() {
+  const basePath =
+    "/rest/v1/predictions?select=entry_id,full_name,locked_at,group_scores,knockout_winners,created_at";
+
+  if (!ENTRY_ID_PREFIX) {
+    return `${basePath}&order=created_at.asc`;
   }
 
-  return `entry-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+  const wildcard = encodeURIComponent(`${ENTRY_ID_PREFIX}*`);
+  return `${basePath}&entry_id=like.${wildcard}&order=created_at.asc`;
+}
+
+function applyEditionMetadata() {
+  if (EDITION.title) {
+    document.title = EDITION.title;
+  }
 }
 
 function unique(values) {
