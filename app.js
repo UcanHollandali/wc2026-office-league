@@ -676,9 +676,9 @@ function renderHeader(model) {
 
   dom.lockNote.textContent = state.locked
     ? state.remoteSyncedAt
-      ? `Tahmin ${formatDateTime(state.lockedAt)} tarihinde kilitlendi ve ortak leaderboard'a gonderildi.`
-      : `Tahmin ${formatDateTime(state.lockedAt)} tarihinde kilitlendi. Ortak kayit teyidi bekleniyor.`
-    : "Tahmin onaylaninca butun inputlar kilitlenir, ayni tarayicida korunur ve ortak leaderboard'a kaydolur.";
+      ? `Tahmininiz ${formatDateTime(state.lockedAt)} tarihinde kilitlendi. Artik puan tablosunda yer almaya hazir.`
+      : `Tahmininiz ${formatDateTime(state.lockedAt)} tarihinde kilitlendi.`
+    : "Tahmininizi tamamlayip onayladiginizda kaydiniz turnuva boyunca sabit kalir.";
 
   dom.syncNote.classList.toggle("sync-note--warning", Boolean(syncState.error));
   dom.syncNote.textContent = getSyncNote();
@@ -2159,34 +2159,34 @@ function getSyncNote() {
   }
 
   if (syncState.loading && !syncState.ready) {
-    return "Ortak leaderboard baglaniyor...";
+    return "Canli puan tablosu baglaniyor...";
   }
 
   if (syncState.lastSyncedAt) {
-    return `Ortak leaderboard bagli. Son senkron: ${formatDateTime(syncState.lastSyncedAt)}.`;
+    return `Canli puan tablosu guncel. Son yenileme: ${formatDateTime(syncState.lastSyncedAt)}.`;
   }
 
-  return "Ortak leaderboard hazir.";
+  return "Canli puan tablosu hazir.";
 }
 
 function getLeaderboardNote() {
   if (syncState.error) {
-    return "Supabase baglantisi duzelince leaderboard tekrar ortak veriye donecek.";
+    return "Baglanti duzelince puan tablosu yeniden guncellenecek.";
   }
 
-  return "Bu leaderboard Supabase uzerinden herkese ortak guncellenir. Isme tiklayinca tahmin detayi acilir.";
+  return "Puan tablosu resmi mac sonuclari girildikce otomatik guncellenir. Isme tiklayinca tahmin detayi acilir.";
 }
 
 function getEmptyLeaderboardCopy() {
   if (syncState.loading && !syncState.ready) {
-    return "Ortak leaderboard baglantisi kuruluyor...";
+    return "Canli puan tablosu olusturuluyor...";
   }
 
   if (syncState.error) {
-    return "Supabase hazir oldugunda ilk kayitlar burada gorunecek.";
+    return "Baglanti hazir oldugunda ilk kayitlar burada gorunecek.";
   }
 
-  return "Henuz ortak leaderboard'da kayitli tahmin yok.";
+  return "Henuz puan tablosunda kayitli tahmin yok.";
 }
 
 function formatDateTime(value) {

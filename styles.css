@@ -542,6 +542,7 @@ tbody tr:last-child td {
   position: relative;
   display: grid;
   gap: 8px;
+  z-index: 0;
 }
 
 .bracket-group--size-1 {
@@ -554,10 +555,16 @@ tbody tr:last-child td {
   gap: 6px;
   padding: 7px;
   min-height: 96px;
+  z-index: 1;
   border-radius: 12px;
   border: 1px solid rgba(22, 71, 46, 0.14);
   background: rgba(255, 255, 255, 0.84);
   box-shadow: 0 8px 18px rgba(35, 69, 47, 0.08);
+}
+
+.bracket-match > * {
+  position: relative;
+  z-index: 1;
 }
 
 .bracket-side--left .bracket-column:not(:last-child) .bracket-match::after {
@@ -566,6 +573,7 @@ tbody tr:last-child td {
   top: calc(50% - 1px);
   right: -18px;
   width: 18px;
+  z-index: 0;
   border-top: 2px solid rgba(33, 73, 62, 0.34);
 }
 
@@ -575,6 +583,27 @@ tbody tr:last-child td {
   top: calc(50% - 1px);
   left: -18px;
   width: 18px;
+  z-index: 0;
+  border-top: 2px solid rgba(33, 73, 62, 0.34);
+}
+
+.bracket-side--left .bracket-column--sf .bracket-match::after {
+  content: "";
+  position: absolute;
+  top: calc(50% - 1px);
+  right: -18px;
+  width: 18px;
+  z-index: 0;
+  border-top: 2px solid rgba(33, 73, 62, 0.34);
+}
+
+.bracket-side--right .bracket-column--sf .bracket-match::before {
+  content: "";
+  position: absolute;
+  top: calc(50% - 1px);
+  left: -18px;
+  width: 18px;
+  z-index: 0;
   border-top: 2px solid rgba(33, 73, 62, 0.34);
 }
 
@@ -584,6 +613,7 @@ tbody tr:last-child td {
   top: 25%;
   bottom: 25%;
   right: -18px;
+  z-index: 0;
   border-right: 2px solid rgba(33, 73, 62, 0.34);
 }
 
@@ -593,6 +623,7 @@ tbody tr:last-child td {
   top: 25%;
   bottom: 25%;
   left: -18px;
+  z-index: 0;
   border-left: 2px solid rgba(33, 73, 62, 0.34);
 }
 
@@ -662,6 +693,7 @@ tbody tr:last-child td {
   position: absolute;
   top: calc(50% - 1px);
   width: 18px;
+  z-index: 0;
   border-top: 2px solid rgba(33, 73, 62, 0.34);
 }
 

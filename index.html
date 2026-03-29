@@ -14,39 +14,40 @@
     <main class="app-shell">
       <section class="hero-card">
         <div class="section-intro">
-          <p class="section-kicker">2026 World Cup Predictor</p>
+          <p class="section-kicker">2026 Dunya Kupasi Tahmin Oyunu</p>
           <h1>Ofis ici tahmin ligi</h1>
           <p class="section-copy">
-            Tek link, tek sayfa, tek tahmin. Grup skorlarini girin, eleme
-            kazananlarini secin ve tahmininizi turnuva baslamadan kilitleyin.
+            Turnuva baslamadan grup mac skorlarini ve eleme turu kazananlarini
+            secin. Mac sonuclari geldikce puan tablosu otomatik guncellensin,
+            kim daha iyi gidiyor birlikte gorelim.
           </p>
         </div>
 
         <div class="hero-rules">
           <article class="hero-rule-card">
-            <h2>Nasil Calisir?</h2>
+            <h2>Oyun Kurali</h2>
             <ul class="hero-rule-list">
-              <li>Herkes ad soyad ile sadece 1 kez tahmin girer.</li>
-              <li>Grup maclari skorla, eleme turlari dropdown ile secilir.</li>
-              <li>Tahmini Onayla sonrasi form kilitlenir, Temizle sadece bu cihazdaki taslagi sifirlar.</li>
+              <li>Her oyuncu turnuva baslamadan tek bir tahmin kaydi yapar.</li>
+              <li>Grup maclari icin skor, eleme turlari icin tur kazananlari secilir.</li>
+              <li>Tahmin onaylandiktan sonra ayni kayit turnuva boyunca sabit kalir.</li>
             </ul>
           </article>
 
           <article class="hero-rule-card">
-            <h2>Grup Puanlama</h2>
+            <h2>Grup Asamasi</h2>
             <ul class="hero-rule-list">
-              <li>Dogru sonuc: 2 puan</li>
-              <li>Tam skor: ekstra 2 puan</li>
-              <li>En iyi 3.'ler arkada puan &gt; averaj &gt; atilan gol ile hesaplanir.</li>
+              <li>Dogru mac sonucu: 2 puan, tam skor: ekstra 2 puan.</li>
+              <li>Bir grup macindan alinabilecek maksimum puan 4'tur.</li>
+              <li>En iyi 3.'ler puan, averaj ve atilan gole gore belirlenir.</li>
             </ul>
           </article>
 
           <article class="hero-rule-card">
-            <h2>Eleme ve Liderlik</h2>
+            <h2>Eleme ve Puan Tablosu</h2>
             <ul class="hero-rule-list">
-              <li>Son 32: 2, Son 16: 3, Ceyrek: 4, Yari final: 5 puan</li>
-              <li>Finalist takim basi 6, Sampiyon 10, 3.'luk maci 4 puan</li>
-              <li>Leaderboard resmi skorlar girildikce otomatik guncellenir.</li>
+              <li>Son 32, Son 16, Ceyrek final ve Yari final turlarinda dogru takim puan kazandirir.</li>
+              <li>Dogru finalist, sampiyon ve 3.'luk tahminleri ekstra puan getirir.</li>
+              <li>Puan tablosu resmi mac sonuclari girildikce otomatik yenilenir.</li>
             </ul>
           </article>
         </div>
@@ -92,11 +93,10 @@
           </div>
 
           <p id="lock-note" class="helper-copy">
-            Tahmin onaylaninca butun inputlar kilitlenir ve ayni tarayicida
-            localStorage ile korunur.
+            Tahmininizi tamamlayip onayladiginizda kaydiniz kilitlenir.
           </p>
           <p id="sync-note" class="sync-note">
-            Ortak leaderboard baglantisi hazirlaniyor.
+            Canli puan tablosu hazirlaniyor.
           </p>
         </form>
       </section>
