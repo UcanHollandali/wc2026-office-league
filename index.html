@@ -22,6 +22,35 @@
           </p>
         </div>
 
+        <div class="hero-rules">
+          <article class="hero-rule-card">
+            <h2>Nasil Calisir?</h2>
+            <ul class="hero-rule-list">
+              <li>Herkes ad soyad ile sadece 1 kez tahmin girer.</li>
+              <li>Grup maclari skorla, eleme turlari dropdown ile secilir.</li>
+              <li>Tahmini Onayla sonrasi form kilitlenir, Temizle sadece bu cihazdaki taslagi sifirlar.</li>
+            </ul>
+          </article>
+
+          <article class="hero-rule-card">
+            <h2>Grup Puanlama</h2>
+            <ul class="hero-rule-list">
+              <li>Dogru sonuc: 2 puan</li>
+              <li>Tam skor: ekstra 2 puan</li>
+              <li>En iyi 3.'ler arkada puan &gt; averaj &gt; atilan gol ile hesaplanir.</li>
+            </ul>
+          </article>
+
+          <article class="hero-rule-card">
+            <h2>Eleme ve Liderlik</h2>
+            <ul class="hero-rule-list">
+              <li>Son 32: 2, Son 16: 3, Ceyrek: 4, Yari final: 5 puan</li>
+              <li>Finalist takim basi 6, Sampiyon 10, 3.'luk maci 4 puan</li>
+              <li>Leaderboard resmi skorlar girildikce otomatik guncellenir.</li>
+            </ul>
+          </article>
+        </div>
+
         <form id="entry-form" class="entry-form" autocomplete="off">
           <label class="field-label" for="full-name">
             Ad soyad
@@ -75,65 +104,6 @@
       <section class="section-card">
         <div class="section-intro">
           <p class="section-kicker">1</p>
-          <h2>Kurallar ve Puanlama</h2>
-          <p class="section-copy">
-            Linki acan kisi ilk bakista nasil oynanacagini, puanlamayi ve
-            kaydin nasil kilitlenecegini gorebilir.
-          </p>
-        </div>
-
-        <div class="rules-grid">
-          <article class="rules-card">
-            <h3>Nasil Calisir?</h3>
-            <ul class="rules-list">
-              <li>Her katilimci sadece 1 kez tahmin girer.</li>
-              <li>Ad soyad ve tum tahminler tamamlaninca Tahmini Onayla ile kayit kilitlenir.</li>
-              <li>Onaydan sonra inputlar kapanir ve tahmin Supabase'e ortak olarak kaydedilir.</li>
-              <li>Grup maclari skorla girilir, eleme turlarinda kazanan dropdown ile secilir.</li>
-              <li>Play-off takimlari netlesince placeholder alanlar gercek takim isimleriyle guncellenir.</li>
-            </ul>
-          </article>
-
-          <article class="rules-card">
-            <h3>Grup Asamasi Puanlama</h3>
-            <ul class="rules-list">
-              <li>Mac sonucunu dogru bilen: 2 puan</li>
-              <li>Tam skoru dogru bilen: ekstra 2 puan</li>
-              <li>Bir grup macindan maksimum: 4 puan</li>
-              <li>Grup tablolari skorlar degistikce otomatik hesaplanir.</li>
-              <li>En iyi 3.'ler sistemde arka planda puan &gt; averaj &gt; atilan gol ile belirlenir.</li>
-            </ul>
-          </article>
-
-          <article class="rules-card">
-            <h3>Eleme Asamasi Puanlama</h3>
-            <ul class="rules-list">
-              <li>Round of 32 dogru kazanan: 2 puan</li>
-              <li>Round of 16 dogru kazanan: 3 puan</li>
-              <li>Quarter-final dogru kazanan: 4 puan</li>
-              <li>Semi-final dogru kazanan: 5 puan</li>
-              <li>Dogru finalist tahmini: takim basina 6 puan</li>
-              <li>Dogru sampiyon tahmini: 10 puan</li>
-              <li>Dogru 3.'luk maci tahmini: 4 puan</li>
-            </ul>
-          </article>
-
-          <article class="rules-card">
-            <h3>Leaderboard</h3>
-            <ul class="rules-list">
-              <li>Toplam puana gore en yuksekten en dusuge siralanir.</li>
-              <li>Listede toplam puan, dogru sonuc, tam skor ve eleme puani gorunur.</li>
-              <li>Bir isme tiklayinca o kisinin kayitli tahmini acilir.</li>
-              <li>Organizator resmi mac skorlarini girdiginde puanlar bu kurallara gore hesaplanir.</li>
-              <li>Temizle butonu sadece bu cihazdaki taslagi sifirlar, ortak kaydi silmez.</li>
-            </ul>
-          </article>
-        </div>
-      </section>
-
-      <section class="section-card">
-        <div class="section-intro">
-          <p class="section-kicker">2</p>
           <h2>Grup Mac Fiksturu</h2>
           <p class="section-copy">
             Skor girildikce puan tablolari ve eleme eslesmeleri otomatik
@@ -146,7 +116,7 @@
 
       <section class="section-card">
         <div class="section-intro">
-          <p class="section-kicker">3</p>
+          <p class="section-kicker">2</p>
           <h2>Grup Sonuclari</h2>
           <p class="section-copy">
             Resimdeki gibi daha kompakt, yanyana mini grup kartlari. Ilk iki
@@ -158,7 +128,7 @@
 
       <section class="section-card">
         <div class="section-intro">
-          <p class="section-kicker">4</p>
+          <p class="section-kicker">3</p>
           <h2>Bracket</h2>
           <p class="section-copy">
             Dropdown secimleri direkt bracket panosu uzerinde ilerler. Final ve
@@ -171,7 +141,7 @@
 
       <section class="section-card">
         <div class="section-intro">
-          <p class="section-kicker">5</p>
+          <p class="section-kicker">4</p>
           <h2>Leaderboard</h2>
           <p class="section-copy">
             Herkesin kaydi Supabase uzerinden tek tabloda toplanir. Isme
