@@ -493,7 +493,7 @@ tbody tr:last-child td {
 .bracket-side {
   display: grid;
   gap: 10px;
-  align-items: start;
+  align-items: center;
 }
 
 .bracket-side--left {
@@ -513,18 +513,6 @@ tbody tr:last-child td {
   display: grid;
   gap: 8px;
   align-content: start;
-}
-
-.bracket-column--r16 {
-  padding-top: 18px;
-}
-
-.bracket-column--qf {
-  padding-top: 54px;
-}
-
-.bracket-column--sf {
-  padding-top: 104px;
 }
 
 .bracket-column__label {
@@ -651,8 +639,8 @@ tbody tr:last-child td {
 .bracket-center {
   display: grid;
   gap: 10px;
-  align-content: start;
-  padding-top: 104px;
+  align-content: center;
+  align-self: center;
 }
 
 .bracket-center__section {
