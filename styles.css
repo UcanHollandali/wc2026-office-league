@@ -21,7 +21,6 @@
   --bracket-card-min-height: 96px;
   --bracket-pair-gap: 8px;
   --bracket-stack-gap: 18px;
-  --bracket-lower-offset: 14px;
   --bracket-r32-lane: var(--bracket-card-min-height);
   --bracket-r16-lane: calc(var(--bracket-r32-lane) * 2 + var(--bracket-pair-gap));
   --bracket-qf-lane: calc(var(--bracket-r16-lane) * 2 + var(--bracket-stack-gap));
@@ -581,15 +580,6 @@ tbody tr:last-child td {
   min-height: var(--bracket-lane-size);
   position: relative;
   z-index: 1;
-}
-
-.bracket-column--r16 .bracket-group:last-child {
-  margin-top: var(--bracket-lower-offset);
-}
-
-.bracket-column--qf .bracket-lane:last-child,
-.bracket-column--sf .bracket-lane:last-child {
-  margin-top: var(--bracket-lower-offset);
 }
 
 .bracket-match {
