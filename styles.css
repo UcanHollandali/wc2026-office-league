@@ -18,10 +18,10 @@
   --radius-lg: 18px;
   --radius-md: 14px;
   --radius-sm: 10px;
-  --bracket-card-min-height: 96px;
+  --bracket-card-height: 114px;
   --bracket-pair-gap: 8px;
   --bracket-stack-gap: 18px;
-  --bracket-r32-lane: var(--bracket-card-min-height);
+  --bracket-r32-lane: var(--bracket-card-height);
   --bracket-r16-lane: calc(var(--bracket-r32-lane) * 2 + var(--bracket-pair-gap));
   --bracket-qf-lane: calc(var(--bracket-r16-lane) * 2 + var(--bracket-stack-gap));
   --bracket-sf-lane: calc(var(--bracket-qf-lane) * 2 + var(--bracket-stack-gap));
@@ -513,7 +513,7 @@ tbody tr:last-child td {
   display: grid;
   gap: 8px;
   align-content: start;
-  --bracket-lane-size: var(--bracket-card-min-height);
+  --bracket-lane-size: var(--bracket-card-height);
   --bracket-group-gap: var(--bracket-pair-gap);
   --bracket-column-gap: var(--bracket-stack-gap);
 }
@@ -587,7 +587,8 @@ tbody tr:last-child td {
   display: grid;
   gap: 6px;
   padding: 7px;
-  min-height: var(--bracket-card-min-height);
+  height: var(--bracket-card-height);
+  min-height: var(--bracket-card-height);
   z-index: 1;
   isolation: isolate;
   border-radius: 12px;
