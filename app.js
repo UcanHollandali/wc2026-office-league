@@ -2478,7 +2478,7 @@ function buildPredictionsPath() {
     "/rest/v1/predictions?select=entry_id,full_name,locked_at,group_scores,knockout_winners,created_at";
 
   if (!ENTRY_ID_PREFIX) {
-    return `${basePath}&order=created_at.asc`;
+    return `${basePath}&entry_id=not.like.*--*&order=created_at.asc`;
   }
 
   const wildcard = encodeURIComponent(`${ENTRY_ID_PREFIX}*`);
