@@ -201,8 +201,19 @@ const SOURCE_PATTERNS = {
   loser: /^L\d+$/,
 };
 
-const BEST_THIRD_SOURCES = unique(
-  KNOCKOUT_MATCHES.flatMap((match) => match.sources).filter(isBestThirdSource)
+const OFFICIAL_BEST_THIRD_COLUMNS = ["1A", "1B", "1D", "1E", "1G", "1I", "1K", "1L"];
+const BEST_THIRD_TARGET_BY_SOURCE = {
+  "3CEFHI": "1A",
+  "3EFGIJ": "1B",
+  "3BEFIJ": "1D",
+  "3ABCDF": "1E",
+  "3AEHIJ": "1G",
+  "3CDFGH": "1I",
+  "3DEIJL": "1K",
+  "3EHIJK": "1L",
+};
+const OFFICIAL_BEST_THIRD_LOOKUP = parseOfficialBestThirdTable(
+  window.WC2026_OFFICIAL_BEST_THIRD_ROWS || ""
 );
 
 const GROUP_ORDER = Object.keys(GROUPS);
@@ -1663,52 +1674,53 @@ function getQualificationSummary(standings) {
 }
 
 function resolveBestThirdAssignments(bestThirds) {
-  const teamPool = bestThirds.map((team) => ({
-    ...team,
-    slot: `3${team.group}`,
-  }));
-  const teamBySlot = Object.fromEntries(teamPool.map((team) => [team.slot, team]));
-  const candidateSlotsBySource = Object.fromEntries(
-    BEST_THIRD_SOURCES.map((source) => [
-      source,
-      teamPool
-        .filter((team) => source.includes(team.group))
-        .map((team) => team.slot),
-    ])
-  );
-  const orderedSources = [...BEST_THIRD_SOURCES].sort((left, right) => {
-    return (
-      candidateSlotsBySource[left].length - candidateSlotsBySource[right].length ||
-      left.localeCompare(right, LOCALE)
-    );
-  });
-  const assignments = {};
-  const usedTeamSlots = new Set();
+  const qualifiedGroups = unique(bestThirds.map((team) => team.group)).sort();
 
-  function backtrack(index) {
-    if (index >= orderedSources.length) {
-      return true;
-    }
-
-    const source = orderedSources[index];
-    const candidates = candidateSlotsBySource[source].filter((slot) => !usedTeamSlots.has(slot));
-
-    for (const slot of candidates) {
-      assignments[source] = teamBySlot[slot];
-      usedTeamSlots.add(slot);
-
-      if (backtrack(index + 1)) {
-        return true;
-      }
-
-      usedTeamSlots.delete(slot);
-      delete assignments[source];
-    }
-
-    return false;
+  if (qualifiedGroups.length !== 8) {
+    return {};
   }
 
-  return backtrack(0) ? assignments : {};
+  const officialOption = OFFICIAL_BEST_THIRD_LOOKUP[qualifiedGroups.join("")];
+
+  if (!officialOption) {
+    return {};
+  }
+
+  const teamBySlot = Object.fromEntries(
+    bestThirds.map((team) => [`3${team.group}`, team])
+  );
+
+  return Object.entries(BEST_THIRD_TARGET_BY_SOURCE).reduce((assignments, [source, target]) => {
+    const teamSlot = officialOption[target];
+    const team = teamBySlot[teamSlot];
+
+    if (team) {
+      assignments[source] = team;
+    }
+
+    return assignments;
+  }, {});
+}
+
+function parseOfficialBestThirdTable(raw) {
+  if (!raw.trim()) {
+    return {};
+  }
+
+  return raw
+    .trim()
+    .split("\n")
+    .reduce((lookup, line) => {
+      const [combo, ...assignments] = line.trim().split(/\s+/);
+
+      if (combo && assignments.length === OFFICIAL_BEST_THIRD_COLUMNS.length) {
+        lookup[combo] = Object.fromEntries(
+          OFFICIAL_BEST_THIRD_COLUMNS.map((column, index) => [column, assignments[index]])
+        );
+      }
+
+      return lookup;
+    }, {});
 }
 
 function compareStandingRows(left, right) {
