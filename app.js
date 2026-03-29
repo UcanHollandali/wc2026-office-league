@@ -685,54 +685,12 @@ function renderHeader(model) {
 }
 
 function renderFixtures() {
-  dom.fixturesRoot.innerHTML = GROUP_FIXTURE_DEFS.map((group) => {
-    const matchesMarkup = group.matches
-      .map((match) => {
-        const values = state.groupScores[match.id] || { home: "", away: "" };
-
-        return `
-          <div class="fixture-row">
-            <span class="fixture-team fixture-team--home">${escapeHtml(match.homeTeam)}</span>
-            <input
-              class="score-input"
-              type="number"
-              min="0"
-              inputmode="numeric"
-              data-match-id="${match.id}"
-              data-side="home"
-              value="${values.home}"
-              ${state.locked ? "disabled" : ""}
-            />
-            <span class="score-separator">:</span>
-            <input
-              class="score-input"
-              type="number"
-              min="0"
-              inputmode="numeric"
-              data-match-id="${match.id}"
-              data-side="away"
-              value="${values.away}"
-              ${state.locked ? "disabled" : ""}
-            />
-            <span class="fixture-team fixture-team--away">${escapeHtml(match.awayTeam)}</span>
-          </div>
-        `;
-      })
-      .join("");
-
-    return `
-      <article class="group-card">
-        <div class="group-card__head">
-          <div>
-            <p class="section-kicker">Group ${group.groupKey}</p>
-            <h3>${group.groupKey} Grubu</h3>
-          </div>
-          <p class="group-card__teams">${escapeHtml(group.teams.join(" | "))}</p>
-        </div>
-        <div class="fixture-list">${matchesMarkup}</div>
-      </article>
-    `;
-  }).join("");
+  dom.fixturesRoot.innerHTML = GROUP_FIXTURE_DEFS.map((group) =>
+    renderFixtureGroupCard(group, state.groupScores, {
+      matchAttribute: "data-match-id",
+      disabled: state.locked,
+    })
+  ).join("");
 }
 
 function renderStandings(model) {
@@ -866,33 +824,18 @@ function createBracketGroups(ids) {
 function renderBracketBoardMatch(match, side) {
   const selectDisabled = state.locked || match.options.length < 2;
   const placeholderLabel = match.options.length < 2 ? "Eslesme bekleniyor" : "Kazanan sec";
-  const optionsMarkup = [
-    `<option value="">${placeholderLabel}</option>`,
-    ...match.options.map(
-      (option) => `
-        <option value="${escapeAttribute(option)}" ${option === match.winner ? "selected" : ""}>
-          ${escapeHtml(option)}
-        </option>
-      `
-    ),
-  ].join("");
+  const optionsMarkup = renderWinnerSelectOptions(match.options, match.winner, placeholderLabel);
 
   return `
     <article class="bracket-match bracket-match--${side}">
-      <div class="bracket-match__meta">
-        <span class="bracket-match__title">${escapeHtml(match.title)}</span>
-        <span class="bracket-match__source">${escapeHtml(match.sources.join(" / "))}</span>
-      </div>
-
       <div class="bracket-slot-stack">
         ${match.sources
           .map((source, index) => {
-            const teamLabel = match.participants[index] || "";
+            const teamLabel = getBracketSlotLabel(match.participants[index], source);
 
             return `
               <div class="bracket-slot">
                 <strong class="bracket-slot__team" title="${escapeAttribute(teamLabel)}">${escapeHtml(teamLabel)}</strong>
-                <span class="bracket-slot__seed">${escapeHtml(source)}</span>
               </div>
             `;
           })
@@ -904,6 +847,21 @@ function renderBracketBoardMatch(match, side) {
       </select>
     </article>
   `;
+}
+
+function getBracketSlotLabel(participant, source) {
+  if (!participant) {
+    return "";
+  }
+
+  if (
+    participant === source &&
+    (/^[12][A-L]$/.test(source) || /^3[A-L]+$/.test(source) || /^W\d+$/.test(source) || /^L\d+$/.test(source))
+  ) {
+    return "";
+  }
+
+  return participant;
 }
 
 function renderLeaderboard() {
@@ -1133,52 +1091,10 @@ function renderAdmin() {
 }
 
 function renderAdminGroupCard(group) {
-  const matchesMarkup = group.matches
-    .map((match) => {
-      const values = officialDraft.groupScores[match.id] || { home: "", away: "" };
-
-      return `
-        <div class="fixture-row">
-          <span class="fixture-team fixture-team--home">${escapeHtml(match.homeTeam)}</span>
-          <input
-            class="score-input"
-            type="number"
-            min="0"
-            inputmode="numeric"
-            data-admin-match-id="${match.id}"
-            data-side="home"
-            value="${values.home}"
-            ${adminState.saving ? "disabled" : ""}
-          />
-          <span class="score-separator">:</span>
-          <input
-            class="score-input"
-            type="number"
-            min="0"
-            inputmode="numeric"
-            data-admin-match-id="${match.id}"
-            data-side="away"
-            value="${values.away}"
-            ${adminState.saving ? "disabled" : ""}
-          />
-          <span class="fixture-team fixture-team--away">${escapeHtml(match.awayTeam)}</span>
-        </div>
-      `;
-    })
-    .join("");
-
-  return `
-    <article class="group-card">
-      <div class="group-card__head">
-        <div>
-          <p class="section-kicker">Group ${group.groupKey}</p>
-          <h3>${group.groupKey} Grubu</h3>
-        </div>
-        <p class="group-card__teams">${escapeHtml(group.teams.join(" | "))}</p>
-      </div>
-      <div class="fixture-list">${matchesMarkup}</div>
-    </article>
-  `;
+  return renderFixtureGroupCard(group, officialDraft.groupScores, {
+    matchAttribute: "data-admin-match-id",
+    disabled: adminState.saving,
+  });
 }
 
 function renderAdminRoundBlock(round, officialModel) {
@@ -1199,16 +1115,7 @@ function renderAdminRoundBlock(round, officialModel) {
 
 function renderAdminMatchCard(match) {
   const selectDisabled = adminState.saving || !match.options.length;
-  const optionMarkup = [
-    '<option value="">Kazanan sec</option>',
-    ...match.options.map(
-      (option) => `
-        <option value="${escapeAttribute(option)}" ${option === match.winner ? "selected" : ""}>
-          ${escapeHtml(option)}
-        </option>
-      `
-    ),
-  ].join("");
+  const optionMarkup = renderWinnerSelectOptions(match.options, match.winner, "Kazanan sec");
 
   return `
     <article class="match-card">
@@ -1239,6 +1146,73 @@ function renderAdminMatchCard(match) {
       </select>
     </article>
   `;
+}
+
+function renderFixtureGroupCard(group, scoreLookup, options = {}) {
+  const matchesMarkup = group.matches
+    .map((match) =>
+      renderFixtureRow(match, scoreLookup[match.id] || { home: "", away: "" }, options)
+    )
+    .join("");
+
+  return `
+    <article class="group-card">
+      <div class="group-card__head">
+        <div>
+          <p class="section-kicker">Group ${group.groupKey}</p>
+          <h3>${group.groupKey} Grubu</h3>
+        </div>
+        <p class="group-card__teams">${escapeHtml(group.teams.join(" | "))}</p>
+      </div>
+      <div class="fixture-list">${matchesMarkup}</div>
+    </article>
+  `;
+}
+
+function renderFixtureRow(match, values, options = {}) {
+  const matchAttribute = options.matchAttribute || "data-match-id";
+  const disabledMarkup = options.disabled ? "disabled" : "";
+
+  return `
+    <div class="fixture-row">
+      <span class="fixture-team fixture-team--home">${escapeHtml(match.homeTeam)}</span>
+      <input
+        class="score-input"
+        type="number"
+        min="0"
+        inputmode="numeric"
+        ${matchAttribute}="${match.id}"
+        data-side="home"
+        value="${values.home}"
+        ${disabledMarkup}
+      />
+      <span class="score-separator">:</span>
+      <input
+        class="score-input"
+        type="number"
+        min="0"
+        inputmode="numeric"
+        ${matchAttribute}="${match.id}"
+        data-side="away"
+        value="${values.away}"
+        ${disabledMarkup}
+      />
+      <span class="fixture-team fixture-team--away">${escapeHtml(match.awayTeam)}</span>
+    </div>
+  `;
+}
+
+function renderWinnerSelectOptions(options, selectedValue, placeholderLabel) {
+  return [
+    `<option value="">${escapeHtml(placeholderLabel)}</option>`,
+    ...options.map(
+      (option) => `
+        <option value="${escapeAttribute(option)}" ${option === selectedValue ? "selected" : ""}>
+          ${escapeHtml(option)}
+        </option>
+      `
+    ),
+  ].join("");
 }
 
 function openPreview(entry) {
