@@ -809,7 +809,13 @@ function renderBracketLane(side, columns, model) {
                     (group) => `
                       <div class="bracket-group bracket-group--${side} bracket-group--size-${group.length}">
                         ${group
-                          .map((matchId) => renderBracketBoardMatch(model.byId[matchId], side))
+                          .map(
+                            (matchId) => `
+                              <div class="bracket-lane">
+                                ${renderBracketBoardMatch(model.byId[matchId], side)}
+                              </div>
+                            `
+                          )
                           .join("")}
                       </div>
                     `
