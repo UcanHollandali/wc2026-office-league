@@ -874,7 +874,7 @@ function getBracketSlotLabel(participant, source) {
     return "";
   }
 
-  if (participant === source && isBracketPlaceholderSource(source)) {
+  if (participant === source && (isWinnerSource(source) || isLoserSource(source))) {
     return "";
   }
 

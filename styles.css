@@ -611,6 +611,7 @@ tbody tr:last-child td {
   align-items: center;
   justify-content: center;
   min-height: 28px;
+  height: 28px;
   gap: 6px;
   padding: 5px 7px;
   border-radius: 9px;
@@ -624,9 +625,11 @@ tbody tr:last-child td {
   flex: 1 1 100%;
   min-width: 0;
   min-height: 18px;
-  line-height: 1.15;
+  line-height: 1;
   text-align: center;
-  overflow-wrap: anywhere;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
   font-size: 0.8rem;
 }
 
