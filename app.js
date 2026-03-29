@@ -201,6 +201,10 @@ const SOURCE_PATTERNS = {
   loser: /^L\d+$/,
 };
 
+const BEST_THIRD_SOURCES = unique(
+  KNOCKOUT_MATCHES.flatMap((match) => match.sources).filter(isBestThirdSource)
+);
+
 const GROUP_ORDER = Object.keys(GROUPS);
 const GROUP_FIXTURE_DEFS = GROUP_ORDER.map((groupKey) => ({
   groupKey,
@@ -1492,11 +1496,12 @@ function stabilizeEntryAndGetModel(entry, onChange) {
 function computeBracketModel(groupScores, knockoutWinners) {
   const standings = buildAllStandings(groupScores);
   const qualification = getQualificationSummary(standings);
+  const bestThirdAssignments = resolveBestThirdAssignments(qualification.bestThirds);
   const byId = {};
 
   KNOCKOUT_MATCHES.forEach((match) => {
     const participants = match.sources.map((source) =>
-      resolveKnockoutSource(source, standings, byId)
+      resolveKnockoutSource(source, standings, byId, bestThirdAssignments)
     );
     const options = unique(participants.filter(isSelectableParticipant));
     const savedWinner = knockoutWinners[String(match.id)] || "";
@@ -1521,13 +1526,14 @@ function computeBracketModel(groupScores, knockoutWinners) {
   return {
     standings,
     qualification,
+    bestThirdAssignments,
     byId,
     champion: byId[104]?.winner || "",
     thirdPlaceWinner: byId[103]?.winner || "",
   };
 }
 
-function resolveKnockoutSource(source, standings, resolvedMatches) {
+function resolveKnockoutSource(source, standings, resolvedMatches, bestThirdAssignments = {}) {
   if (isGroupRankSource(source)) {
     const rankIndex = Number(source.charAt(0)) - 1;
     const groupKey = source.slice(1);
@@ -1535,7 +1541,7 @@ function resolveKnockoutSource(source, standings, resolvedMatches) {
   }
 
   if (isBestThirdSource(source)) {
-    return source;
+    return bestThirdAssignments[source]?.team || source;
   }
 
   if (isWinnerSource(source)) {
@@ -1654,6 +1660,55 @@ function getQualificationSummary(standings) {
     bestThirds,
     bestThirdGroups: new Set(bestThirds.map((team) => team.group)),
   };
+}
+
+function resolveBestThirdAssignments(bestThirds) {
+  const teamPool = bestThirds.map((team) => ({
+    ...team,
+    slot: `3${team.group}`,
+  }));
+  const teamBySlot = Object.fromEntries(teamPool.map((team) => [team.slot, team]));
+  const candidateSlotsBySource = Object.fromEntries(
+    BEST_THIRD_SOURCES.map((source) => [
+      source,
+      teamPool
+        .filter((team) => source.includes(team.group))
+        .map((team) => team.slot),
+    ])
+  );
+  const orderedSources = [...BEST_THIRD_SOURCES].sort((left, right) => {
+    return (
+      candidateSlotsBySource[left].length - candidateSlotsBySource[right].length ||
+      left.localeCompare(right, LOCALE)
+    );
+  });
+  const assignments = {};
+  const usedTeamSlots = new Set();
+
+  function backtrack(index) {
+    if (index >= orderedSources.length) {
+      return true;
+    }
+
+    const source = orderedSources[index];
+    const candidates = candidateSlotsBySource[source].filter((slot) => !usedTeamSlots.has(slot));
+
+    for (const slot of candidates) {
+      assignments[source] = teamBySlot[slot];
+      usedTeamSlots.add(slot);
+
+      if (backtrack(index + 1)) {
+        return true;
+      }
+
+      usedTeamSlots.delete(slot);
+      delete assignments[source];
+    }
+
+    return false;
+  }
+
+  return backtrack(0) ? assignments : {};
 }
 
 function compareStandingRows(left, right) {
@@ -2294,15 +2349,6 @@ function isWinnerSource(source) {
 
 function isLoserSource(source) {
   return SOURCE_PATTERNS.loser.test(source);
-}
-
-function isBracketPlaceholderSource(source) {
-  return (
-    isGroupRankSource(source) ||
-    isBestThirdSource(source) ||
-    isWinnerSource(source) ||
-    isLoserSource(source)
-  );
 }
 
 function createEntryId() {
