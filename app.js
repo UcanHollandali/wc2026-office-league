@@ -833,8 +833,16 @@ function renderBracketLane(side, columns, model) {
             <div class="bracket-column bracket-column--${column.key}">
               <p class="bracket-column__label">${escapeHtml(column.title)}</p>
               <div class="bracket-column__stack">
-                ${column.ids
-                  .map((matchId) => renderBracketBoardMatch(model.byId[matchId], side))
+                ${createBracketGroups(column.ids)
+                  .map(
+                    (group) => `
+                      <div class="bracket-group bracket-group--${side} bracket-group--size-${group.length}">
+                        ${group
+                          .map((matchId) => renderBracketBoardMatch(model.byId[matchId], side))
+                          .join("")}
+                      </div>
+                    `
+                  )
                   .join("")}
               </div>
             </div>
@@ -845,10 +853,21 @@ function renderBracketLane(side, columns, model) {
   `;
 }
 
+function createBracketGroups(ids) {
+  const groups = [];
+
+  for (let index = 0; index < ids.length; index += 2) {
+    groups.push(ids.slice(index, index + 2));
+  }
+
+  return groups;
+}
+
 function renderBracketBoardMatch(match, side) {
-  const selectDisabled = state.locked || !match.options.length;
+  const selectDisabled = state.locked || match.options.length < 2;
+  const placeholderLabel = match.options.length < 2 ? "Eslesme bekleniyor" : "Kazanan sec";
   const optionsMarkup = [
-    '<option value="">Kazanan sec</option>',
+    `<option value="">${placeholderLabel}</option>`,
     ...match.options.map(
       (option) => `
         <option value="${escapeAttribute(option)}" ${option === match.winner ? "selected" : ""}>
@@ -868,7 +887,7 @@ function renderBracketBoardMatch(match, side) {
       <div class="bracket-slot-stack">
         ${match.sources
           .map((source, index) => {
-            const teamLabel = match.participants[index] || source;
+            const teamLabel = match.participants[index] || "";
 
             return `
               <div class="bracket-slot">
@@ -1474,10 +1493,11 @@ function computeBracketModel(groupScores, knockoutWinners) {
     );
     const options = unique(participants.filter(isSelectableParticipant));
     const savedWinner = knockoutWinners[String(match.id)] || "";
-    const winner = options.includes(savedWinner) ? savedWinner : "";
+    const matchReady = options.length === 2;
+    const winner = matchReady && options.includes(savedWinner) ? savedWinner : "";
     let loser = "";
 
-    if (winner && participants.length === 2) {
+    if (matchReady && winner && participants.length === 2) {
       loser = participants[0] === winner ? participants[1] : participants[0];
     }
 
@@ -1485,6 +1505,7 @@ function computeBracketModel(groupScores, knockoutWinners) {
       ...match,
       participants,
       options,
+      matchReady,
       winner,
       loser,
     };
@@ -1512,12 +1533,12 @@ function resolveKnockoutSource(source, standings, resolvedMatches) {
 
   if (/^W\d+$/.test(source)) {
     const matchId = Number(source.slice(1));
-    return resolvedMatches[matchId]?.winner || `Winner ${matchId}`;
+    return resolvedMatches[matchId]?.winner || "";
   }
 
   if (/^L\d+$/.test(source)) {
     const matchId = Number(source.slice(1));
-    return resolvedMatches[matchId]?.loser || `Loser ${matchId}`;
+    return resolvedMatches[matchId]?.loser || "";
   }
 
   return source;

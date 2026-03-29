@@ -516,7 +516,29 @@ tbody tr:last-child td {
 
 .bracket-column__stack {
   display: grid;
+  gap: 18px;
+}
+
+.bracket-column--r16 .bracket-column__stack {
+  gap: 28px;
+}
+
+.bracket-column--qf .bracket-column__stack {
+  gap: 42px;
+}
+
+.bracket-column--sf .bracket-column__stack {
+  gap: 0;
+}
+
+.bracket-group {
+  position: relative;
+  display: grid;
   gap: 10px;
+}
+
+.bracket-group--size-1 {
+  gap: 0;
 }
 
 .bracket-match {
@@ -534,8 +556,8 @@ tbody tr:last-child td {
   content: "";
   position: absolute;
   top: calc(50% - 1px);
-  right: -11px;
-  width: 11px;
+  right: -18px;
+  width: 18px;
   border-top: 2px solid rgba(33, 73, 62, 0.34);
 }
 
@@ -543,9 +565,27 @@ tbody tr:last-child td {
   content: "";
   position: absolute;
   top: calc(50% - 1px);
-  left: -11px;
-  width: 11px;
+  left: -18px;
+  width: 18px;
   border-top: 2px solid rgba(33, 73, 62, 0.34);
+}
+
+.bracket-side--left .bracket-group--size-2::after {
+  content: "";
+  position: absolute;
+  top: 25%;
+  bottom: 25%;
+  right: -18px;
+  border-right: 2px solid rgba(33, 73, 62, 0.34);
+}
+
+.bracket-side--right .bracket-group--size-2::before {
+  content: "";
+  position: absolute;
+  top: 25%;
+  bottom: 25%;
+  left: -18px;
+  border-left: 2px solid rgba(33, 73, 62, 0.34);
 }
 
 .bracket-match__meta {
@@ -603,6 +643,10 @@ tbody tr:last-child td {
   line-height: 1.15;
   overflow-wrap: anywhere;
   font-size: 0.82rem;
+}
+
+.bracket-slot__team:empty::after {
+  content: "\00a0";
 }
 
 .bracket-select {
