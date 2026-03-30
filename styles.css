@@ -927,134 +927,66 @@ tbody tr:last-child td {
 }
 
 @media (min-width: 960px) {
-  :root {
-    --bracket-card-height: 126px;
-  }
-
-  #fixtures-root .group-card {
-    padding: 16px;
-  }
-
-  #fixtures-root .group-card__head {
-    gap: 10px 16px;
-    margin-bottom: 14px;
-  }
-
   #fixtures-root .group-card__head .section-kicker {
-    font-size: 0.98rem;
-    letter-spacing: 0.12em;
+    font-size: 0.92rem;
+    letter-spacing: 0.11em;
   }
 
   #fixtures-root .group-card__teams {
-    font-size: 0.96rem;
-    line-height: 1.32;
-  }
-
-  .fixture-row {
-    grid-template-columns: minmax(108px, 1fr) 62px 18px 62px minmax(108px, 1fr);
-    gap: 10px;
-    padding: 10px 12px;
+    font-size: 0.88rem;
+    line-height: 1.28;
   }
 
   .fixture-team {
-    font-size: 1.02rem;
-    line-height: 1.2;
+    font-size: 0.96rem;
   }
 
   .score-input {
-    font-size: 1rem;
+    font-size: 0.96rem;
   }
 
   .score-separator {
-    font-size: 1rem;
-  }
-
-  .mini-group-card__head {
-    padding: 12px 14px;
+    font-size: 0.96rem;
   }
 
   .mini-group-card__head .section-kicker {
-    font-size: 1rem;
-    letter-spacing: 0.12em;
-  }
-
-  .mini-group-card__body {
-    gap: 8px;
-    padding: 12px;
-  }
-
-  .mini-group-legend,
-  .mini-group-row {
-    grid-template-columns: minmax(0, 2.45fr) 24px 54px 38px 24px;
+    font-size: 0.94rem;
+    letter-spacing: 0.11em;
   }
 
   .mini-group-legend {
-    font-size: 0.8rem;
-    padding: 0 10px;
-  }
-
-  .mini-group-row {
-    padding: 10px 11px;
+    font-size: 0.76rem;
   }
 
   .mini-group-value {
-    font-size: 1rem;
-  }
-
-  .mini-group-team {
-    font-size: 1.02rem;
-    line-height: 1.22;
-  }
-
-  .bracket-board {
-    min-width: 1120px;
-    grid-template-columns: minmax(0, 1fr) 230px minmax(0, 1fr);
-    gap: 16px;
-    padding: 8px 4px 4px;
-  }
-
-  .bracket-column__label {
-    min-height: 22px;
-    color: var(--accent-strong);
-    font-size: 0.92rem;
-    letter-spacing: 0.08em;
-  }
-
-  .bracket-match {
-    gap: 8px;
-    padding: 10px;
-    height: 126px;
-    min-height: 126px;
-  }
-
-  .bracket-slot-stack {
-    gap: 6px;
-  }
-
-  .bracket-slot {
-    min-height: 30px;
-    height: 30px;
-    padding: 6px 10px;
-  }
-
-  .bracket-slot__team {
-    min-height: 20px;
-    line-height: 1.05;
-    font-size: 1rem;
-  }
-
-  .bracket-select {
-    height: 38px;
-    padding: 6px 10px;
     font-size: 0.94rem;
   }
 
+  .mini-group-team {
+    font-size: 0.96rem;
+    line-height: 1.18;
+  }
+
+  .bracket-column__label {
+    color: var(--accent-strong);
+    font-size: 0.8rem;
+    letter-spacing: 0.08em;
+  }
+
+  .bracket-slot__team {
+    font-size: 0.86rem;
+  }
+
+  .bracket-select {
+    font-size: 0.8rem;
+  }
+
   .bracket-crown span {
-    font-size: 0.82rem;
+    font-size: 0.78rem;
   }
 
   .bracket-crown strong {
-    font-size: 1.28rem;
+    font-size: 1.2rem;
   }
 }
 
