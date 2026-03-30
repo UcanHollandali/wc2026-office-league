@@ -70,17 +70,6 @@ window.WC2026_EDITION = {
     lockNoteLocked: (value) => `Your prediction was locked on ${value}.`,
     bracketChampion: "Champion",
     bracketThirdPlace: "Third Place",
-    finalLabel: "Final",
-    roundLabel: (roundKey) =>
-      (
-        {
-          r32: "Round of 32",
-          r16: "Round of 16",
-          qf: "Quarter-finals",
-          sf: "Semi-finals",
-          "final-stage": "Final and Third Place",
-        }
-      )[roundKey] || roundKey,
     previewMeta: (score) =>
       `Total points: ${score.totalPoints} | Correct results: ${score.correctResults} | Exact scores: ${score.exactScores} | Knockout points: ${score.eliminationPoints}`,
     previewSummary: "Summary",
@@ -88,8 +77,6 @@ window.WC2026_EDITION = {
     previewGroupPredictions: "Group Match Predictions",
     previewBracket: "Bracket Picks",
     syncErrorPrefix: "Supabase connection issue: ",
-    syncConfigMissing: "Supabase configuration is missing.",
-    syncRefreshFailed: "The shared leaderboard could not be refreshed.",
     syncSubmitting: "Saving prediction to Supabase...",
     syncLoading: "Connecting live leaderboard...",
     syncReady: (value) => `Live leaderboard is up to date. Last refresh: ${value}.`,
@@ -102,7 +89,6 @@ window.WC2026_EDITION = {
     adminPasswordPlaceholder: "Supabase Auth password",
     adminLoggingIn: "Signing in...",
     adminLogin: "Admin Sign In",
-    adminSessionCreateFailed: "Admin session could not be created.",
     adminOfficialSavedAt: (value) => `Saved official results: ${value}`,
     adminOfficialEmpty: "No official result set has been saved yet.",
     adminDirty: "You have unsaved admin changes.",
@@ -124,7 +110,6 @@ window.WC2026_EDITION = {
       "Once saved, these official results update the same leaderboard for everyone in this edition.",
     previewUnselected: "Not selected",
     unknownValue: "unknown",
-    supabaseError: (status) => `Supabase error (${status})`,
     syncConnectionFailed:
       "The shared leaderboard could not be refreshed because the Supabase connection failed.",
   },

@@ -78,18 +78,7 @@ function createEditionCopy(overrides = {}) {
       `Tahmininiz ${value} tarihinde kilitlendi. Artik puan tablosunda yer almaya hazir.`,
     lockNoteLocked: (value) => `Tahmininiz ${value} tarihinde kilitlendi.`,
     bracketChampion: "Sampiyon",
-    bracketThirdPlace: "Ucunculuk",
-    finalLabel: "Final",
-    roundLabel: (roundKey) =>
-      (
-        {
-          r32: "Son 32",
-          r16: "Son 16",
-          qf: "Ceyrek Final",
-          sf: "Yari Final",
-          "final-stage": "Final ve Ucunculuk",
-        }
-      )[roundKey] || roundKey,
+    bracketThirdPlace: "Third Place",
     previewMeta: (score) =>
       `Toplam puan: ${score.totalPoints} | Dogru sonuc: ${score.correctResults} | Tam skor: ${score.exactScores} | Eleme puani: ${score.eliminationPoints}`,
     previewSummary: "Ozet",
@@ -97,8 +86,6 @@ function createEditionCopy(overrides = {}) {
     previewGroupPredictions: "Grup Mac Tahminleri",
     previewBracket: "Bracket Secimleri",
     syncErrorPrefix: "Supabase baglantisi sorunlu: ",
-    syncConfigMissing: "Supabase ayarlari eksik.",
-    syncRefreshFailed: "Ortak tablo yenilenemedi.",
     syncSubmitting: "Tahmin Supabase'e kaydediliyor...",
     syncLoading: "Canli puan tablosu baglaniyor...",
     syncReady: (value) => `Canli puan tablosu guncel. Son yenileme: ${value}.`,
@@ -111,7 +98,6 @@ function createEditionCopy(overrides = {}) {
     adminPasswordPlaceholder: "Supabase Auth sifresi",
     adminLoggingIn: "Giris yapiliyor...",
     adminLogin: "Admin Girisi",
-    adminSessionCreateFailed: "Admin oturumu acilamadi.",
     adminOfficialSavedAt: (value) => `Kayitli resmi skor seti: ${value}`,
     adminOfficialEmpty: "Resmi skor seti henuz kaydedilmedi.",
     adminDirty: "Kaydedilmemis admin degisikligi var.",
@@ -131,7 +117,6 @@ function createEditionCopy(overrides = {}) {
     adminFooterCopy: "Kaydettiginiz resmi sonuclar herkeste ayni leaderboard'u gunceller.",
     previewUnselected: "Secilmedi",
     unknownValue: "belirsiz",
-    supabaseError: (status) => `Supabase hatasi (${status})`,
     syncConnectionFailed:
       "Supabase baglantisi kurulamadigi icin ortak tablo guncellenemedi.",
     ...overrides,
@@ -288,25 +273,25 @@ const KNOCKOUT_MATCHES = [
 ];
 
 const KNOCKOUT_ROUNDS = [
-  { key: "r32", ids: range(73, 88) },
-  { key: "r16", ids: range(89, 96) },
-  { key: "qf", ids: range(97, 100) },
-  { key: "sf", ids: range(101, 102) },
-  { key: "final-stage", ids: [103, 104] },
+  { key: "r32", title: "Round of 32", ids: range(73, 88) },
+  { key: "r16", title: "Round of 16", ids: range(89, 96) },
+  { key: "qf", title: "Quarter-finals", ids: range(97, 100) },
+  { key: "sf", title: "Semi-finals", ids: range(101, 102) },
+  { key: "final-stage", title: "Final & Third Place", ids: [103, 104] },
 ];
 
 const BRACKET_BOARD = {
   left: [
-    { key: "r32", ids: [74, 77, 73, 75, 83, 84, 81, 82] },
-    { key: "r16", ids: [89, 90, 93, 94] },
-    { key: "qf", ids: [97, 98] },
-    { key: "sf", ids: [101] },
+    { key: "r32", title: "Round of 32", ids: [74, 77, 73, 75, 83, 84, 81, 82] },
+    { key: "r16", title: "Round of 16", ids: [89, 90, 93, 94] },
+    { key: "qf", title: "Quarter-finals", ids: [97, 98] },
+    { key: "sf", title: "Semi-finals", ids: [101] },
   ],
   right: [
-    { key: "sf", ids: [102] },
-    { key: "qf", ids: [99, 100] },
-    { key: "r16", ids: [91, 92, 95, 96] },
-    { key: "r32", ids: [76, 78, 79, 80, 86, 88, 85, 87] },
+    { key: "sf", title: "Semi-finals", ids: [102] },
+    { key: "qf", title: "Quarter-finals", ids: [99, 100] },
+    { key: "r16", title: "Round of 16", ids: [91, 92, 95, 96] },
+    { key: "r32", title: "Round of 32", ids: [76, 78, 79, 80, 86, 88, 85, 87] },
   ],
 };
 
@@ -322,8 +307,6 @@ const BONUS_POINTS = {
   champion: 10,
   thirdPlace: 4,
 };
-
-const EMPTY_MATCH_SCORE = Object.freeze({ home: "", away: "" });
 
 const SOURCE_PATTERNS = {
   groupRank: /^[12][A-L]$/,
@@ -364,8 +347,6 @@ const GROUP_FIXTURE_DEFS = GROUP_ORDER.map((groupKey) => ({
 const ALL_GROUP_MATCHES = GROUP_FIXTURE_DEFS.flatMap((group) => group.matches);
 const TOTAL_GROUP_MATCHES = ALL_GROUP_MATCHES.length;
 const TOTAL_KNOCKOUT_MATCHES = KNOCKOUT_MATCHES.length;
-const GROUP_MATCH_IDS = ALL_GROUP_MATCHES.map((match) => match.id);
-const KNOCKOUT_MATCH_IDS = KNOCKOUT_MATCHES.map((match) => String(match.id));
 
 let state = loadState();
 let submissions = [];
@@ -440,7 +421,7 @@ function bindEvents() {
 
 async function bootstrap() {
   if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
-    syncState.error = COPY.syncConfigMissing;
+    syncState.error = "Supabase ayarlari eksik.";
     renderAll();
     return;
   }
@@ -557,7 +538,7 @@ async function handleConfirm(event) {
     try {
       await refreshRemoteData({ silent: true });
     } catch (error) {
-      syncState.error = error.message || COPY.syncRefreshFailed;
+      syncState.error = error.message || "Ortak tablo yenilenemedi.";
     }
   } catch (error) {
     window.alert(error.message || COPY.alertPredictionSaveFailed);
@@ -883,7 +864,7 @@ function renderStandings(model) {
           <article class="mini-group-card">
             <div class="mini-group-card__head">
               <div>
-                <p class="section-kicker">${escapeHtml(getGroupLabel(groupKey))}</p>
+                <p class="section-kicker">Group ${groupKey}</p>
               </div>
             </div>
             <div class="mini-group-card__body">
@@ -918,7 +899,7 @@ function renderBracket(model) {
         ${renderBracketLane("left", BRACKET_BOARD.left, model)}
         <div class="bracket-center">
           <div class="bracket-center__section">
-            <p class="bracket-column__label">${escapeHtml(COPY.finalLabel)}</p>
+            <p class="bracket-column__label">Final</p>
             ${renderBracketBoardMatch(finalMatch, "center")}
           </div>
 
@@ -947,7 +928,7 @@ function renderBracketLane(side, columns, model) {
         .map(
           (column) => `
             <div class="bracket-column bracket-column--${column.key}">
-              <p class="bracket-column__label">${escapeHtml(getRoundLabel(column.key))}</p>
+              <p class="bracket-column__label">${escapeHtml(column.title)}</p>
               <div class="bracket-column__stack">
                 ${createBracketGroups(column.ids)
                   .map(
@@ -1267,8 +1248,8 @@ function renderAdminRoundBlock(round, officialModel) {
     <section class="admin-round-block">
       <div class="group-card__head">
         <div>
-          <p class="section-kicker">${escapeHtml(getRoundLabel(round.key))}</p>
-          <h3>${escapeHtml(getRoundLabel(round.key))}</h3>
+          <p class="section-kicker">${escapeHtml(round.title)}</p>
+          <h3>${escapeHtml(round.title)}</h3>
         </div>
       </div>
       <div class="admin-round-grid">
@@ -1316,7 +1297,7 @@ function renderAdminMatchCard(match) {
 function renderFixtureGroupCard(group, scoreLookup, options = {}) {
   const matchesMarkup = group.matches
     .map((match) =>
-      renderFixtureRow(match, scoreLookup[match.id] || EMPTY_MATCH_SCORE, options)
+      renderFixtureRow(match, scoreLookup[match.id] || { home: "", away: "" }, options)
     )
     .join("");
 
@@ -1324,7 +1305,7 @@ function renderFixtureGroupCard(group, scoreLookup, options = {}) {
     <article class="group-card">
       <div class="group-card__head">
         <div>
-          <p class="section-kicker">${escapeHtml(getGroupLabel(group.groupKey))}</p>
+          <p class="section-kicker">Group ${group.groupKey}</p>
         </div>
         <p class="group-card__teams">${escapeHtml(group.teams.join(" | "))}</p>
       </div>
@@ -1391,7 +1372,7 @@ function openPreview(entry) {
   const fixtureMarkup = GROUP_FIXTURE_DEFS.map((group) => {
     const rows = group.matches
       .map((match) => {
-        const value = entry.groupScores[match.id] || EMPTY_MATCH_SCORE;
+        const value = entry.groupScores[match.id] || { home: "", away: "" };
         return `
           <div class="preview-fixture-row">
             <span>${escapeHtml(match.homeTeam)} vs ${escapeHtml(match.awayTeam)}</span>
@@ -1403,7 +1384,7 @@ function openPreview(entry) {
 
     return `
       <article class="preview-group">
-        <p class="section-kicker">${escapeHtml(getGroupLabel(group.groupKey))}</p>
+        <p class="section-kicker">Group ${group.groupKey}</p>
         <div class="preview-fixtures">${rows}</div>
       </article>
     `;
@@ -1424,8 +1405,8 @@ function openPreview(entry) {
 
     return `
       <article class="preview-round">
-        <p class="section-kicker">${escapeHtml(getRoundLabel(round.key))}</p>
-        <h4>${escapeHtml(getRoundLabel(round.key))}</h4>
+        <p class="section-kicker">${escapeHtml(round.title)}</p>
+        <h4>${escapeHtml(round.title)}</h4>
         ${winnersMarkup}
       </article>
     `;
@@ -1458,14 +1439,6 @@ function openPreview(entry) {
 function closePreview() {
   dom.previewOverlay.classList.add("hidden");
   document.body.classList.remove("modal-open");
-}
-
-function getGroupLabel(groupKey) {
-  return COPY.standingsGroupTitle(groupKey);
-}
-
-function getRoundLabel(roundKey) {
-  return COPY.roundLabel(roundKey);
 }
 
 function getLeaderboardRows() {
@@ -1975,16 +1948,14 @@ async function fetchOfficialResults() {
     `/rest/v1/official_results?slug=eq.${OFFICIAL_RESULTS_SLUG}&select=slug,group_scores,knockout_winners,updated_at&limit=1`
   );
 
-  const row = getFirstRow(rows);
-
-  if (!row) {
+  if (!Array.isArray(rows) || !rows[0]) {
     return createOfficialResultsState();
   }
 
   return createOfficialResultsState({
-    groupScores: row.group_scores,
-    knockoutWinners: row.knockout_winners,
-    updatedAt: row.updated_at,
+    groupScores: rows[0].group_scores,
+    knockoutWinners: rows[0].knockout_winners,
+    updatedAt: rows[0].updated_at,
   });
 }
 
@@ -2003,7 +1974,7 @@ async function createPrediction(entry) {
     }),
   });
 
-  const savedRow = getFirstRow(rows);
+  const savedRow = Array.isArray(rows) && rows[0] ? rows[0] : null;
 
   if (!savedRow) {
     return normalizeEntry({
@@ -2033,7 +2004,7 @@ async function upsertOfficialResults(results, accessToken) {
     }
   );
 
-  const row = getFirstRow(rows);
+  const row = Array.isArray(rows) && rows[0] ? rows[0] : null;
 
   return createOfficialResultsState({
     groupScores: row?.group_scores || results.groupScores,
@@ -2062,7 +2033,7 @@ async function loginAdmin(email, password) {
   });
 
   if (!payload?.access_token) {
-    throw new Error(COPY.adminSessionCreateFailed);
+    throw new Error("Admin oturumu acilamadi.");
   }
 
   return {
@@ -2084,7 +2055,7 @@ async function verifyAdminAccess(email, accessToken) {
     }
   );
 
-  if (!getFirstRow(rows)?.email) {
+  if (!Array.isArray(rows) || !rows[0]?.email) {
     throw new Error(COPY.adminEmailRestricted);
   }
 
@@ -2127,7 +2098,7 @@ async function supabaseRequest(path, options = {}) {
 }
 
 async function parseSupabaseError(response) {
-  const fallback = COPY.supabaseError(response.status);
+  let fallback = `Supabase hatasi (${response.status})`;
 
   try {
     const payload = await response.json();
@@ -2164,15 +2135,15 @@ function createOfficialResultsState(source = {}) {
 }
 
 function buildEmptyGroupScores() {
-  return GROUP_MATCH_IDS.reduce((accumulator, matchId) => {
-    accumulator[matchId] = { home: "", away: "" };
+  return ALL_GROUP_MATCHES.reduce((accumulator, match) => {
+    accumulator[match.id] = { home: "", away: "" };
     return accumulator;
   }, {});
 }
 
 function buildEmptyKnockoutWinners() {
-  return KNOCKOUT_MATCH_IDS.reduce((accumulator, matchId) => {
-    accumulator[matchId] = "";
+  return KNOCKOUT_MATCHES.reduce((accumulator, match) => {
+    accumulator[String(match.id)] = "";
     return accumulator;
   }, {});
 }
@@ -2246,7 +2217,7 @@ function normalizeRemoteSubmission(raw) {
 function copyGroupScores(source = {}) {
   const target = buildEmptyGroupScores();
 
-  GROUP_MATCH_IDS.forEach((matchId) => {
+  Object.keys(target).forEach((matchId) => {
     const score = source?.[matchId] || {};
     target[matchId] = {
       home: sanitizeScoreValue(score.home),
@@ -2260,7 +2231,7 @@ function copyGroupScores(source = {}) {
 function copyKnockoutWinners(source = {}) {
   const target = buildEmptyKnockoutWinners();
 
-  KNOCKOUT_MATCH_IDS.forEach((matchId) => {
+  Object.keys(target).forEach((matchId) => {
     const winner =
       typeof source?.[matchId] !== "undefined" ? source[matchId] : source?.[Number(matchId)];
     target[matchId] = typeof winner === "string" ? winner : "";
@@ -2289,10 +2260,6 @@ function isScoreComplete(score) {
 
 function isSelectableParticipant(label) {
   return Boolean(label);
-}
-
-function getFirstRow(rows) {
-  return Array.isArray(rows) && rows[0] ? rows[0] : null;
 }
 
 function ensureLocalSubmissionPresence(remoteEntries) {
