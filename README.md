@@ -29,8 +29,15 @@ Bu sayede iki surum ayni repoda calisir ama verileri birbirine karismaz.
 ## Kurulum
 
 1. Supabase dashboard icinde `supabase-setup.sql` dosyasini SQL Editor'de calistirin.
-2. Supabase Auth > Users icinde `kemalis@hotmail.com` adresiyle bir admin kullanicisi olusturun.
-3. Repo'yu GitHub Pages ile `main` branch / root klasorden yayinlayin.
+2. Supabase Auth > Users icinde kendi admin e-postanizla bir admin kullanicisi olusturun.
+3. Ayni e-postayi `admin_accounts` tablosuna ekleyin:
+
+```sql
+insert into public.admin_accounts (email)
+values ('you@example.com')
+on conflict (email) do nothing;
+```
+4. Repo'yu GitHub Pages ile `main` branch / root klasorden yayinlayin.
 
 ## Supabase Ek Adimlari
 
@@ -43,6 +50,8 @@ insert into public.official_results (slug)
 values ('subsea7')
 on conflict (slug) do nothing;
 ```
+
+Yeni bir admin eklemek istediginde de ayni mantikla sadece `admin_accounts` tablosuna yeni e-posta eklersin.
 
 ## Dosya Yapisi
 

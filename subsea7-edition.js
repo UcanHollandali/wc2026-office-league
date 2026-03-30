@@ -25,8 +25,10 @@ window.WC2026_EDITION = {
     deleteConfirm: (name) =>
       `Do you want to remove ${name || "this entry"} from the leaderboard?`,
     deleteError: "The entry could not be deleted.",
+    adminEmailRequired: "Please enter the admin email.",
     adminPasswordRequired: "Please enter the admin password.",
-    adminEmailRestricted: "This admin panel is restricted to the configured email address.",
+    adminEmailRestricted:
+      "This account is not authorized for admin access. Add it to the admin_accounts table in Supabase.",
     adminLoginFailed: "Admin sign-in failed.",
     adminSaveFailed: "Official results could not be saved.",
     adminSessionExpired: "The admin session expired. Please sign in again.",
@@ -79,9 +81,10 @@ window.WC2026_EDITION = {
     syncLoading: "Connecting live leaderboard...",
     syncReady: (value) => `Live leaderboard is up to date. Last refresh: ${value}.`,
     syncInitial: "Live leaderboard is ready.",
-    adminLoginIntro: (email) =>
-      `This panel is only for ${email}. Create an admin user with the same email inside Supabase Auth and sign in here.`,
+    adminLoginIntro: () =>
+      "This panel is only for authorized admin accounts. Sign in with an account that exists in Supabase Auth and is also listed in the admin_accounts table.",
     adminEmailLabel: "Admin email",
+    adminEmailPlaceholder: "you@example.com",
     adminPasswordLabel: "Admin password",
     adminPasswordPlaceholder: "Supabase Auth password",
     adminLoggingIn: "Signing in...",

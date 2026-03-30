@@ -7,7 +7,6 @@ const LOCALE = EDITION.locale || "tr-TR";
 
 const SUPABASE_URL = "https://ycgguuxpjkaubzizajwd.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_Bm88PedADVAjWMrnmYW1og_LIuAuomR";
-const SUPABASE_ADMIN_EMAIL = EDITION.adminEmail || "kemalis@hotmail.com";
 const OFFICIAL_RESULTS_SLUG = EDITION.officialResultsSlug || "default";
 const ENTRY_ID_PREFIX = EDITION.entryIdPrefix || "";
 const ADMIN_MODE = new URLSearchParams(window.location.search).get("admin") === "1";
@@ -33,8 +32,9 @@ function createEditionCopy(overrides = {}) {
       "\nNot: Ortak leaderboard kaydi silinmez, sadece bu cihazdaki taslak sifirlanir.",
     deleteConfirm: (name) => `${name || "Bu kaydi"} leaderboard'dan silmek istiyor musunuz?`,
     deleteError: "Kayit silinemedi.",
+    adminEmailRequired: "Lutfen admin e-postasini girin.",
     adminPasswordRequired: "Lutfen admin sifresini girin.",
-    adminEmailRestricted: "Bu admin paneli sadece belirlenen e-posta ile acilir.",
+    adminEmailRestricted: "Bu hesap admin paneli icin yetkili degil. Supabase'te admin_accounts tablosuna eklenmeli.",
     adminLoginFailed: "Admin girisi basarisiz.",
     adminSaveFailed: "Resmi sonuclar kaydedilemedi.",
     adminSessionExpired: "Admin oturumu sona erdi. Lutfen yeniden giris yapin.",
@@ -83,9 +83,10 @@ function createEditionCopy(overrides = {}) {
     syncLoading: "Canli puan tablosu baglaniyor...",
     syncReady: (value) => `Canli puan tablosu guncel. Son yenileme: ${value}.`,
     syncInitial: "Canli puan tablosu hazir.",
-    adminLoginIntro: (email) =>
-      `Bu panel sadece ${email} icindir. Supabase Auth icinde ayni e-posta ile sifreli bir admin kullanicisi olusturup burada giris yapabilirsiniz.`,
+    adminLoginIntro: () =>
+      "Bu panel sadece yetkili admin hesaplari icindir. Supabase Auth'ta olusturdugunuz ve admin_accounts tablosuna eklediginiz hesapla giris yapabilirsiniz.",
     adminEmailLabel: "Admin e-posta",
+    adminEmailPlaceholder: "you@example.com",
     adminPasswordLabel: "Admin sifresi",
     adminPasswordPlaceholder: "Supabase Auth sifresi",
     adminLoggingIn: "Giris yapiliyor...",
@@ -644,14 +645,14 @@ async function handleAdminSubmit(event) {
     .toLowerCase();
   const password = String(formData.get("password") || "");
 
-  if (!password) {
-    adminState.error = COPY.adminPasswordRequired;
+  if (!email) {
+    adminState.error = COPY.adminEmailRequired;
     renderAll();
     return;
   }
 
-  if (email !== SUPABASE_ADMIN_EMAIL.toLowerCase()) {
-    adminState.error = COPY.adminEmailRestricted;
+  if (!password) {
+    adminState.error = COPY.adminPasswordRequired;
     renderAll();
     return;
   }
@@ -661,7 +662,9 @@ async function handleAdminSubmit(event) {
   renderAll();
 
   try {
-    adminState.session = await loginAdmin(email, password);
+    const session = await loginAdmin(email, password);
+    await verifyAdminAccess(session.email || email, session.accessToken);
+    adminState.session = session;
     adminState.officialDirty = false;
     saveAdminSession(adminState.session);
     await refreshRemoteData({ silent: true });
@@ -1097,12 +1100,18 @@ function renderAdmin() {
       <article class="leaderboard-card">
         <form class="admin-login" data-admin-login-form="true" autocomplete="off">
           <p class="admin-note">
-            ${escapeHtml(COPY.adminLoginIntro(SUPABASE_ADMIN_EMAIL))}
+            ${escapeHtml(COPY.adminLoginIntro())}
           </p>
 
           <label class="field-label">
             ${escapeHtml(COPY.adminEmailLabel)}
-            <input type="text" name="email" value="${escapeAttribute(SUPABASE_ADMIN_EMAIL)}" readonly />
+            <input
+              type="email"
+              name="email"
+              value="${escapeAttribute(adminState.session?.email || "")}"
+              placeholder="${escapeAttribute(COPY.adminEmailPlaceholder || "")}"
+              autocomplete="username"
+            />
           </label>
 
           <label class="field-label">
@@ -2025,6 +2034,25 @@ async function loginAdmin(email, password) {
   };
 }
 
+async function verifyAdminAccess(email, accessToken) {
+  const cleanEmail = String(email || "")
+    .trim()
+    .toLowerCase();
+
+  const rows = await supabaseRequest(
+    `/rest/v1/admin_accounts?select=email&email=eq.${encodeURIComponent(cleanEmail)}&limit=1`,
+    {
+      token: accessToken,
+    }
+  );
+
+  if (!Array.isArray(rows) || !rows[0]?.email) {
+    throw new Error(COPY.adminEmailRestricted);
+  }
+
+  return true;
+}
+
 async function supabaseRequest(path, options = {}) {
   const headers = {
     apikey: SUPABASE_ANON_KEY,
@@ -2271,7 +2299,7 @@ function loadAdminSession() {
     }
 
     return {
-      email: typeof raw.email === "string" ? raw.email : SUPABASE_ADMIN_EMAIL,
+      email: typeof raw.email === "string" ? raw.email : "",
       accessToken: typeof raw.accessToken === "string" ? raw.accessToken : "",
       expiresAt: Number.isFinite(Number(raw.expiresAt)) ? Number(raw.expiresAt) : 0,
     };

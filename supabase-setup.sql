@@ -16,18 +16,30 @@ create table if not exists public.official_results (
   updated_at timestamptz not null default timezone('utc', now())
 );
 
+create table if not exists public.admin_accounts (
+  email text primary key check (email = lower(trim(email))),
+  created_at timestamptz not null default timezone('utc', now())
+);
+
 insert into public.official_results (slug)
 values ('default')
 on conflict (slug) do nothing;
 
 alter table public.predictions enable row level security;
 alter table public.official_results enable row level security;
+alter table public.admin_accounts enable row level security;
 
 drop policy if exists "public read predictions" on public.predictions;
 drop policy if exists "public insert predictions" on public.predictions;
 drop policy if exists "admin delete predictions" on public.predictions;
 drop policy if exists "public read official results" on public.official_results;
 drop policy if exists "admin manage official results" on public.official_results;
+drop policy if exists "admin read own account" on public.admin_accounts;
+
+create policy "admin read own account"
+on public.admin_accounts
+for select
+using (email = lower(coalesce(auth.jwt() ->> 'email', '')));
 
 create policy "public read predictions"
 on public.predictions
@@ -42,7 +54,13 @@ with check (true);
 create policy "admin delete predictions"
 on public.predictions
 for delete
-using (coalesce(auth.jwt() ->> 'email', '') = 'kemalis@hotmail.com');
+using (
+  exists (
+    select 1
+    from public.admin_accounts admin_account
+    where admin_account.email = lower(coalesce(auth.jwt() ->> 'email', ''))
+  )
+);
 
 create policy "public read official results"
 on public.official_results
@@ -52,5 +70,22 @@ using (true);
 create policy "admin manage official results"
 on public.official_results
 for all
-using (coalesce(auth.jwt() ->> 'email', '') = 'kemalis@hotmail.com')
-with check (coalesce(auth.jwt() ->> 'email', '') = 'kemalis@hotmail.com');
+using (
+  exists (
+    select 1
+    from public.admin_accounts admin_account
+    where admin_account.email = lower(coalesce(auth.jwt() ->> 'email', ''))
+  )
+)
+with check (
+  exists (
+    select 1
+    from public.admin_accounts admin_account
+    where admin_account.email = lower(coalesce(auth.jwt() ->> 'email', ''))
+  )
+);
+
+-- Example:
+-- insert into public.admin_accounts (email)
+-- values ('you@example.com')
+-- on conflict (email) do nothing;
