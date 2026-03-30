@@ -26,7 +26,7 @@
   --bracket-qf-lane: calc(var(--bracket-r16-lane) * 2 + var(--bracket-stack-gap));
   --bracket-sf-lane: calc(var(--bracket-qf-lane) * 2 + var(--bracket-stack-gap));
   --font-stack: "Barlow Condensed", "Avenir Next Condensed", "Franklin Gothic Medium", "Arial Narrow", sans-serif;
-  font-size: 14px;
+  font-size: 16px;
 }
 
 *,
@@ -133,16 +133,19 @@ h1 {
   font-size: clamp(1.7rem, 3vw, 2.6rem);
   line-height: 1;
   letter-spacing: -0.02em;
+  font-weight: 800;
 }
 
 h2 {
   font-size: 1.3rem;
   line-height: 1.05;
+  font-weight: 800;
 }
 
 h3 {
   font-size: 1.05rem;
   line-height: 1.1;
+  font-weight: 800;
 }
 
 h4 {
@@ -361,7 +364,7 @@ select:disabled {
 }
 
 .fixture-team {
-  font-weight: 700;
+  font-weight: 400;
 }
 
 .fixture-team--away {
@@ -409,6 +412,7 @@ td {
 thead th {
   color: var(--muted);
   font-size: 0.82rem;
+  font-weight: 800;
   text-transform: uppercase;
   letter-spacing: 0.08em;
 }
@@ -943,7 +947,7 @@ tbody tr:last-child td {
 
 @media (max-width: 640px) {
   :root {
-    font-size: 13px;
+    font-size: 14px;
   }
 
   .app-shell {
