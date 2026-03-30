@@ -25,8 +25,8 @@
   --bracket-r16-lane: calc(var(--bracket-r32-lane) * 2 + var(--bracket-pair-gap));
   --bracket-qf-lane: calc(var(--bracket-r16-lane) * 2 + var(--bracket-stack-gap));
   --bracket-sf-lane: calc(var(--bracket-qf-lane) * 2 + var(--bracket-stack-gap));
-  --font-stack: "Avenir Next Condensed", "Franklin Gothic Medium", "Arial Narrow", sans-serif;
-  font-size: 13px;
+  --font-stack: "Barlow Condensed", "Avenir Next Condensed", "Franklin Gothic Medium", "Arial Narrow", sans-serif;
+  font-size: 14px;
 }
 
 *,
@@ -372,6 +372,14 @@ select:disabled {
   padding: 8px 10px;
   text-align: center;
   font-weight: 800;
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+
+.score-input::-webkit-outer-spin-button,
+.score-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
 }
 
 .score-separator {
@@ -935,7 +943,7 @@ tbody tr:last-child td {
 
 @media (max-width: 640px) {
   :root {
-    font-size: 12px;
+    font-size: 13px;
   }
 
   .app-shell {

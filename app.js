@@ -11,6 +11,13 @@ const OFFICIAL_RESULTS_SLUG = EDITION.officialResultsSlug || "default";
 const ENTRY_ID_PREFIX = EDITION.entryIdPrefix || "";
 const ADMIN_MODE = new URLSearchParams(window.location.search).get("admin") === "1";
 const COPY = createEditionCopy(EDITION.copy || {});
+const RENDER_DEBOUNCE_MS = 120;
+let _renderDebounceTimer = null;
+
+function debouncedRenderAll(options = {}) {
+  clearTimeout(_renderDebounceTimer);
+  _renderDebounceTimer = setTimeout(() => renderAll(options), RENDER_DEBOUNCE_MS);
+}
 
 function createEditionCopy(overrides = {}) {
   return {
@@ -459,7 +466,7 @@ function handleFixtureInput(event) {
 
   state.groupScores[matchId][side] = sanitizeScoreValue(target.value);
   saveState();
-  renderAll({ preserveFocus: true });
+  debouncedRenderAll({ preserveFocus: true });
 }
 
 function handleKnockoutChange(event) {
@@ -692,7 +699,7 @@ function handleAdminInput(event) {
 
   officialDraft.groupScores[matchId][side] = sanitizeScoreValue(target.value);
   adminState.officialDirty = true;
-  renderAll({ preserveFocus: true });
+  debouncedRenderAll({ preserveFocus: true });
 }
 
 function handleAdminChange(event) {
@@ -1318,6 +1325,7 @@ function renderFixtureRow(match, values, options = {}) {
         class="score-input"
         type="number"
         min="0"
+        max="99"
         inputmode="numeric"
         ${matchAttribute}="${match.id}"
         data-side="home"
@@ -1329,6 +1337,7 @@ function renderFixtureRow(match, values, options = {}) {
         class="score-input"
         type="number"
         min="0"
+        max="99"
         inputmode="numeric"
         ${matchAttribute}="${match.id}"
         data-side="away"
@@ -2242,7 +2251,7 @@ function sanitizeScoreValue(value) {
     return "";
   }
 
-  return String(Math.trunc(numberValue));
+  return String(Math.min(Math.trunc(numberValue), 99));
 }
 
 function isScoreComplete(score) {
@@ -2250,7 +2259,7 @@ function isScoreComplete(score) {
 }
 
 function isSelectableParticipant(label) {
-  return Boolean(label) && !/^Winner \d+$/.test(label) && !/^Loser \d+$/.test(label);
+  return Boolean(label);
 }
 
 function ensureLocalSubmissionPresence(remoteEntries) {
