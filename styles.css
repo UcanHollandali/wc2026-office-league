@@ -471,6 +471,16 @@ tbody tr:last-child td {
   padding: 0 8px;
 }
 
+.mini-group-legend span {
+  display: block;
+  font-weight: 800;
+  text-align: center;
+}
+
+.mini-group-legend span:first-child {
+  text-align: left;
+}
+
 .mini-group-row {
   padding: 8px;
   border-radius: 11px;
