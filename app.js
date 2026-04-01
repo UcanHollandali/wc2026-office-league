@@ -124,36 +124,36 @@ function createEditionCopy(overrides = {}) {
 }
 
 const GROUPS = {
-  A: ["Mexico", "South Africa", "South Korea", "EU Play-off D"],
-  B: ["Canada", "EU Play-off A", "Qatar", "Switzerland"],
+  A: ["Mexico", "South Africa", "South Korea", "Czech Republic"],
+  B: ["Canada", "Bosnia and Herzegovina", "Qatar", "Switzerland"],
   C: ["Brazil", "Morocco", "Haiti", "Scotland"],
-  D: ["USA", "Paraguay", "Australia", "EU Play-off C"],
+  D: ["United States", "Paraguay", "Australia", "Turkey"],
   E: ["Germany", "Curacao", "Ivory Coast", "Ecuador"],
-  F: ["Netherlands", "Japan", "EU Play-off B", "Tunisia"],
+  F: ["Netherlands", "Japan", "Sweden", "Tunisia"],
   G: ["Belgium", "Egypt", "Iran", "New Zealand"],
   H: ["Spain", "Cape Verde", "Saudi Arabia", "Uruguay"],
-  I: ["France", "Senegal", "INT Play-off 2", "Norway"],
+  I: ["France", "Senegal", "Iraq", "Norway"],
   J: ["Argentina", "Algeria", "Austria", "Jordan"],
-  K: ["Portugal", "INT Play-off 1", "Uzbekistan", "Colombia"],
+  K: ["Portugal", "DR Congo", "Uzbekistan", "Colombia"],
   L: ["England", "Croatia", "Ghana", "Panama"],
 };
 
 const FIXTURES = {
   A: [
     ["Mexico", "South Africa"],
-    ["South Korea", "EU Play-off D"],
-    ["EU Play-off D", "South Africa"],
+    ["South Korea", "Czech Republic"],
+    ["Czech Republic", "South Africa"],
     ["Mexico", "South Korea"],
     ["South Africa", "South Korea"],
-    ["EU Play-off D", "Mexico"],
+    ["Czech Republic", "Mexico"],
   ],
   B: [
-    ["Canada", "EU Play-off A"],
+    ["Canada", "Bosnia and Herzegovina"],
     ["Qatar", "Switzerland"],
-    ["Switzerland", "EU Play-off A"],
+    ["Switzerland", "Bosnia and Herzegovina"],
     ["Canada", "Qatar"],
     ["Switzerland", "Canada"],
-    ["EU Play-off A", "Qatar"],
+    ["Bosnia and Herzegovina", "Qatar"],
   ],
   C: [
     ["Brazil", "Morocco"],
@@ -164,11 +164,11 @@ const FIXTURES = {
     ["Scotland", "Brazil"],
   ],
   D: [
-    ["USA", "Paraguay"],
-    ["Australia", "EU Play-off C"],
-    ["USA", "Australia"],
-    ["EU Play-off C", "Paraguay"],
-    ["EU Play-off C", "USA"],
+    ["United States", "Paraguay"],
+    ["Australia", "Turkey"],
+    ["United States", "Australia"],
+    ["Turkey", "Paraguay"],
+    ["Turkey", "United States"],
     ["Paraguay", "Australia"],
   ],
   E: [
@@ -181,10 +181,10 @@ const FIXTURES = {
   ],
   F: [
     ["Netherlands", "Japan"],
-    ["EU Play-off B", "Tunisia"],
-    ["Netherlands", "EU Play-off B"],
+    ["Sweden", "Tunisia"],
+    ["Netherlands", "Sweden"],
     ["Tunisia", "Japan"],
-    ["Japan", "EU Play-off B"],
+    ["Japan", "Sweden"],
     ["Tunisia", "Netherlands"],
   ],
   G: [
@@ -205,11 +205,11 @@ const FIXTURES = {
   ],
   I: [
     ["France", "Senegal"],
-    ["INT Play-off 2", "Norway"],
-    ["France", "INT Play-off 2"],
+    ["Iraq", "Norway"],
+    ["France", "Iraq"],
     ["Norway", "Senegal"],
     ["Norway", "France"],
-    ["Senegal", "INT Play-off 2"],
+    ["Senegal", "Iraq"],
   ],
   J: [
     ["Argentina", "Algeria"],
@@ -220,12 +220,12 @@ const FIXTURES = {
     ["Jordan", "Argentina"],
   ],
   K: [
-    ["Portugal", "INT Play-off 1"],
+    ["Portugal", "DR Congo"],
     ["Uzbekistan", "Colombia"],
     ["Portugal", "Uzbekistan"],
-    ["Colombia", "INT Play-off 1"],
+    ["Colombia", "DR Congo"],
     ["Colombia", "Portugal"],
-    ["INT Play-off 1", "Uzbekistan"],
+    ["DR Congo", "Uzbekistan"],
   ],
   L: [
     ["England", "Croatia"],
